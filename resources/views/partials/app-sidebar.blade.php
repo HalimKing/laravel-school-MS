@@ -174,7 +174,7 @@
                                 'label' => 'Add Academic Period',
                                 'url' => route('admin.academics.academic-periods.create'),
                                 'active' => ['admin.academics.academic-periods.create']
-                            ],
+                            ],1
                         ],
                         'active_patterns' => [
                             'subjects.index',
