@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class AcademicPeriod extends Model
+{
+    //
+    protected $fillable = [
+        'name'
+    ];
+
+    public function fee ()
+    {
+        return $this->hasMany(Fee::class);
+    }
+}
