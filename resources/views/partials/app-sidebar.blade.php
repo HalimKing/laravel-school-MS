@@ -174,7 +174,7 @@
                                 'label' => 'Add Academic Period',
                                 'url' => route('admin.academics.academic-periods.create'),
                                 'active' => ['admin.academics.academic-periods.create']
-                            ],1
+                            ],
                         ],
                         'active_patterns' => [
                             'subjects.index',
@@ -245,6 +245,11 @@
                                 'url' => route('admin.fee-management.fees.index'),
                                 'active' => ['admin.fee-management.fees.index']
                             ],
+                            [
+                                'label' => 'Fee Collection',
+                                'url' => route('admin.fee-management.collect-fees.index'),
+                                'active' => ['admin.fee-management.collect-fees.index']
+                            ],
                         ],
                         'active_patterns' => [
                             'admin.fee-management.fee-categories.index',
@@ -252,7 +257,8 @@
                             'admin.fee-management.fee-categories.edit',
                             'admin.fee-management.fees.index',
                             'admin.fee-management.fees.create',
-                            'admin.fee-management.fees.edit'
+                            'admin.fee-management.fees.edit',
+                            'admin.fee-management.collect-fees.index'
                             ]
                     ],
 

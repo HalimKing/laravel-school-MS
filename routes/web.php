@@ -6,6 +6,7 @@ use App\Http\Controllers\TeacherPasswordController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\CollectFeeController;
 use App\Http\Controllers\EnrollmentListController;
 use App\Http\Controllers\EnrollStudentstController;
 use App\Http\Controllers\EventController;
@@ -99,6 +100,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::prefix('fee-management')->name('fee-management.')->group(function () {
         Route::resource('fee-categories', FeeCategoryController::class);
         Route::resource('fees', FeeController::class);
+        Route::get('collect-fees', [CollectFeeController::class, 'index'])->name('collect-fees.index');
+        Route::post('collect-fees', [CollectFeeController::class, 'store'])->name('collect-fees.store');
+        Route::get('collect-fees/print-receipt/{id}', [CollectFeeController::class, 'printReceipt'])->name('collect-fees.receipt');
         
     });
   

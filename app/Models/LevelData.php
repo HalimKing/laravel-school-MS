@@ -33,4 +33,9 @@ class LevelData extends Model
     {
         return $this->hasOne(ClassModel::class)->latestOfMany();
     }
+
+    public function feePayments()
+    {
+        return $this->hasMany(FeePayment::class);
+    }
 }

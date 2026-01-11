@@ -34,4 +34,9 @@ class Fee extends Model
     {
         return $this->belongsTo(ClassModel::class);
     }
+
+    public function feePayments()
+    {
+        return $this->hasMany(FeePayment::class);
+    }
 }
