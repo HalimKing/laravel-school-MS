@@ -41,7 +41,7 @@
 
     <script src="{{ asset('assets/vendors/core/core.js') }}" defer></script>
     
-    <script src="{{ asset('assets/vendors/jquery/jquery.min.js') }}" defer></script>
+    <script src="{{ asset('assets/vendors/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/datatables.net/dataTables.js') }}" defer></script>
     <script src="{{ asset('assets/vendors/datatables.net-bs5/dataTables.bootstrap5.js') }}" defer></script>
     <script src="{{ asset('assets/vendors/flatpickr/flatpickr.min.js') }}" defer></script>
@@ -52,6 +52,12 @@
     <script src="{{ asset('assets/js/app.js') }}" defer></script>
     
     <script>
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('.al').alert('close');
+            }, 5000);
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Lucide icons once
             if (typeof lucide !== 'undefined') {
@@ -59,6 +65,8 @@
             }
         });
     </script>
+
+    
 
     @stack('scripts')
 </body>

@@ -17,9 +17,3 @@
     </div>
 @endif
 
-
-<script>
-    setTimeout(function() {
-        $('.al').alert('close');
-    }, 5000);
-</script>

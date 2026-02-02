@@ -13,13 +13,23 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+   // In StudentController.php
+    public function index(Request $request)
     {
-        //
-        $students = Student::with('latestLevel.class')->get();
+        $search = strtolower($request->input('search'));
 
+        $students = Student::with('latestLevel.class')
+            ->when($search, function ($query, $search) {
+                return $query->where(function($q) use ($search) {
+                    $q->whereRaw('LOWER(first_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(student_id) LIKE ?', ["%{$search}%"]);
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
-        // dd($students);
         return view('admin.student.index', compact('students'));
     }
 
@@ -40,7 +50,7 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         //
-        $validator = $request->validate( [
+        $validator = $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'middle_name' => 'nullable|string',
@@ -57,7 +67,7 @@ class StudentController extends Controller
             'academic_year_id' => 'required',
         ]);
 
-        try{
+        try {
             $student = Student::create($validator);
             $levelData = new LevelData();
             $levelData->student_id = $student->id;
@@ -65,7 +75,7 @@ class StudentController extends Controller
             $levelData->academic_year_id = $request->academic_year_id;
             $levelData->save();
             return redirect()->route('admin.students.index')->with('success', 'Student created successfully');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -78,7 +88,7 @@ class StudentController extends Controller
         //
         $classes = ClassModel::orderBy('name', 'asc')->get();
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
-        
+
         $levelData = LevelData::where('student_id', $student->id)->latest()->first();
         return view('admin.student.show', compact('classes', 'academicYears', 'student', 'levelData'));
     }
@@ -102,7 +112,7 @@ class StudentController extends Controller
     public function update(Request $request, Student $student)
     {
         //
-        $validator = $request->validate( [
+        $validator = $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'middle_name' => 'nullable|string',
@@ -110,10 +120,10 @@ class StudentController extends Controller
             'address' => 'nullable|string',
             'gender' => 'required',
             'date_of_birth' => 'required',
-            'student_id' => 'required|unique:students,student_id,'.$student->id,
+            'student_id' => 'required|unique:students,student_id,' . $student->id,
             'status' => 'required',
             'parent_name' => 'nullable|string',
-            'parent_email' => 'nullable|email|unique:students,parent_email,'.$student->id,
+            'parent_email' => 'nullable|email|unique:students,parent_email,' . $student->id,
             'parent_phone' => 'nullable',
             'class_id' => 'required',
             'academic_year_id' => 'required',

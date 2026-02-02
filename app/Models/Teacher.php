@@ -20,4 +20,9 @@ class Teacher extends Model
         'password',
         'address',
     ];
+
+    public function assignSubjects()
+    {
+        return $this->hasMany(AssignSubject::class, 'teacher_id');
+    }
 }

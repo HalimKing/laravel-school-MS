@@ -152,8 +152,13 @@
                         'items' => [
                             [
                                 'label' => 'Subjects',
-                                'url' => route('subjects.index'),
-                                'active' => ['subjects.index', 'subjects.edit', 'subjects.show']
+                                'url' => route('admin.academics.subjects.index'),
+                                'active' => ['admin.academics.subjects.index', 'subjects.edit', 'admin.academics.subjects.edit']
+                            ],
+                            [
+                                'label' => 'Assign Subjects',
+                                'url' => route('admin.academics.assign-subjects.index'),
+                                'active' => ['admin.academics.assign-subjects.index','admin.academics.assign-subjects.edit']
                             ],
                             [
                                 'label' => 'All Sessions',
@@ -184,7 +189,12 @@
                             'admin.sessions.index',
                             'admin.sessions.create',
                             'admin.academics.academic-periods.index',
-                            'admin.academics.academic-periods.create'
+                            'admin.academics.academic-periods.create',
+                            'admin.academics.subjects.index',
+                            'admin.academics.subjects.edit',
+                            'admin.academics.assign-subjects.index',
+                            'admin.academics.assign-subjects.create',
+                            'admin.academics.assign-subjects.edit'
                         ]
                     ],
                     [

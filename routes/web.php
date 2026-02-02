@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\TeacherPasswordController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AssignSujectsController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\CollectFeeController;
@@ -33,7 +34,7 @@ Route::get('students/reports', [StudentController::class, 'report'])->name('stud
 
 
 
-Route::resource('subjects', SubjectController::class);
+
 Route::resource('events', EventController::class);
 Route::resource('users', UserController::class);
 Route::resource('roles', RolesController::class);
@@ -75,6 +76,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::prefix('academics')->name('academics.')->group(function () {
         Route::resource('academic-periods', AcademicPeriodController::class);
+        Route::resource('subjects', SubjectController::class);
+        Route::post('assign-subjects/store', [AssignSujectsController::class, 'store'])->name('assign-subjects.store');
+        Route::get('assign-subjects/create', [AssignSujectsController::class, 'create'])->name('assign-subjects.create');
+        Route::get('assign-subjects/edit/{id}', [AssignSujectsController::class, 'edit'])->name('assign-subjects.edit');
+        Route::put('assign-subjects/update/{id}', [AssignSujectsController::class, 'update'])->name('assign-subjects.update');
+        Route::get('assign-subjects', [AssignSujectsController::class, 'index'])->name('assign-subjects.index');
+        Route::delete('assign-subjects/{id}', [AssignSujectsController::class, 'destroy'])->name('assign-subjects.destroy');
     });
 
     Route::prefix('enrollments')->name('enrollments.')->group(function () {
