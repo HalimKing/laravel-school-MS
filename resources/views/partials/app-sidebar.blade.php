@@ -227,6 +227,16 @@
                         'icon' => 'file-text',
                         'items' => [
                             [
+                                'label' => 'View Results',
+                                'url' => route('results.index'),
+                                'active' => ['results.index']
+                            ],
+                            [
+                                'label' => 'Assessments',
+                                'url' => route('admin.results-management.assessments.index'),
+                                'active' => ['admin.results-management.assessments.index']
+                            ],
+                            [
                                 'label' => 'Single Upload',
                                 'url' => route('results.single-upload'),
                                 'active' => ['results.single-upload']

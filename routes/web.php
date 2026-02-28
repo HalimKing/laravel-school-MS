@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\TeacherPasswordController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AssignSujectsController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\ClassController;
@@ -52,25 +53,25 @@ Route::prefix('reports')->name('reports.')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    
+
 
     Route::resource('/students', StudentController::class);
     Route::resource('/classes', ClassController::class);
-    
+
     Route::prefix('/teacher/password')->name('teacher.password.')->group(function () {
-    // Display the search/reset page
+        // Display the search/reset page
         Route::get('/', [TeacherPasswordController::class, 'index'])->name('index');
-        
+
         // Process the search query
         Route::get('/search', [TeacherPasswordController::class, 'search'])->name('search');
-        
+
         // Perform the password update
         Route::put('/{id}', [TeacherPasswordController::class, 'update'])->name('update');
     });
     Route::resource('teachers', TeacherController::class);
     Route::resource('class', ClassController::class);
     Route::put('sessions/activate/{id}', [AcademicYearController::class, 'activateSessions'])
-    ->name('sessions.activate');
+        ->name('sessions.activate');
     Route::resource('sessions', AcademicYearController::class);
 
 
@@ -87,17 +88,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::prefix('enrollments')->name('enrollments.')->group(function () {
         Route::get('enrollment-list', [EnrollmentListController::class, 'index'])
-        ->name('enrollment-list.index');
+            ->name('enrollment-list.index');
         Route::get('enrollment-list/export', [EnrollmentListController::class, 'export'])
-        ->name('enrollment-list.export');
+            ->name('enrollment-list.export');
 
         Route::get('enroll-students', [EnrollStudentstController::class, 'index'])
-        ->name('enroll-students.index');
+            ->name('enroll-students.index');
         Route::get('enroll-students/filter', [EnrollStudentstController::class, 'enrollFilter'])
-        ->name('enroll-students.filter');
+            ->name('enroll-students.filter');
         // enrollment process
         Route::post('enroll-students/process', [EnrollStudentstController::class, 'enrollProcess'])
-        ->name('enroll-students.process');
+            ->name('enroll-students.process');
 
         // filter en
 
@@ -111,15 +112,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('collect-fees', [CollectFeeController::class, 'index'])->name('collect-fees.index');
         Route::post('collect-fees', [CollectFeeController::class, 'store'])->name('collect-fees.store');
         Route::get('collect-fees/print-receipt/{id}', [CollectFeeController::class, 'printReceipt'])->name('collect-fees.receipt');
-        
     });
-  
 
+    Route::prefix('results-management')->name('results-management.')->group(function () {
+        Route::resource('assessments', AssessmentController::class);
+    });
 });
 
 Route::prefix('results')->name('results.')->group(function () {
+    Route::get('/', [ResultsController::class, 'index'])->name('index');
+    Route::get('/export', [ResultsController::class, 'export'])->name('export');
+    Route::delete('/delete-student-results', [ResultsController::class, 'deleteStudentResults'])->name('delete-student-results');
+    Route::delete('/{id}', [ResultsController::class, 'destroy'])->name('destroy');
     Route::get('/single-upload', [ResultsController::class, 'singleUpload'])->name('single-upload');
+    Route::post('/single-upload', [ResultsController::class, 'storeSingleResult'])->name('single-upload.store');
+    Route::post('/check-duplicates', [ResultsController::class, 'checkDuplicates'])->name('check-duplicates');
+    Route::get('/get-students/{academicYearId}/{classId}', [ResultsController::class, 'getStudentsByClass'])->name('get-students');
+    Route::get('/get-assessments/{subjectId}/{classId}', [ResultsController::class, 'getAssessmentsBySubject'])->name('get-assessments');
     Route::get('/bulk-upload', [ResultsController::class, 'bulkUpload'])->name('bulk-upload');
+    Route::post('/bulk-upload', [ResultsController::class, 'processBulkUpload'])->name('bulk-upload.store');
+    Route::get('/download-template/{subjectId}/{classId}', [ResultsController::class, 'downloadTemplate'])->name('download-template');
 });
-
-
