@@ -8,7 +8,13 @@ class FeePayment extends Model
 {
     //
     protected $fillable = [
-        'level_data_id', 'fee_id', 'amount', 'payment_date', 'payment_method', 'reference_no', 'remarks'
+        'level_data_id',
+        'fee_id',
+        'amount_paid',
+        'payment_date',
+        'payment_method',
+        'reference_no',
+        'remarks'
     ];
 
     protected $casts = [
@@ -24,5 +30,4 @@ class FeePayment extends Model
     {
         return $this->belongsTo(Fee::class);
     }
-
 }

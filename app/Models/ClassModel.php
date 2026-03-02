@@ -22,8 +22,13 @@ class ClassModel extends Model
         return $this->hasMany(LevelData::class);
     }
 
-    public function fee ()
+    public function fee()
     {
         return $this->hasMany(Fee::class);
+    }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class, 'class_id');
     }
 }

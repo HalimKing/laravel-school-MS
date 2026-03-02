@@ -2,460 +2,607 @@
 
 <!-- Sidebar Navigation -->
 <nav class="sidebar">
-    <div class="sidebar-header">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand">
-            School<span>MS</span>
+  <div class="sidebar-header">
+    <a href="{{ route('dashboard') }}" class="sidebar-brand">
+      School<span>MS</span>
+    </a>
+    <div class="sidebar-toggler">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+  <div class="sidebar-body">
+    <ul class="nav" id="sidebarNav">
+      @php
+      // Helper function to check active state with exact and wildcard matching
+      function isActive($patterns, $currentRoute = null) {
+      $currentRoute = $currentRoute ?? request()->route()->getName();
+
+      if (is_array($patterns)) {
+      foreach ($patterns as $pattern) {
+      // Check for exact match first (without wildcards)
+      if ($currentRoute === $pattern) {
+      return true;
+      }
+
+      // Check for wildcard match
+      if (str_ends_with($pattern, '*')) {
+      $basePattern = rtrim($pattern, '*');
+      if (str_starts_with($currentRoute, $basePattern)) {
+      // Additional check to prevent overlapping patterns
+      // Only match if the next character after base is a dot or end of string
+      $nextChar = substr($currentRoute, strlen($basePattern), 1);
+      if ($nextChar === '.' || $nextChar === '') {
+      return true;
+      }
+      }
+      }
+      }
+      return false;
+      }
+
+      return $currentRoute === $patterns;
+      }
+
+      // Helper function to check if any child is active
+      function isChildActive($items, $currentRoute = null) {
+      $currentRoute = $currentRoute ?? request()->route()->getName();
+      foreach ($items as $item) {
+      if (isset($item['active']) && isActive($item['active'], $currentRoute)) {
+      return true;
+      }
+      }
+      return false;
+      }
+
+      $currentRoute = request()->route()->getName();
+
+      $sidebarMenu = [
+      // Main Section
+      [
+      'type' => 'category',
+      'label' => 'Main',
+      ],
+      [
+      'type' => 'link',
+      'label' => 'Dashboard',
+      'url' => route('dashboard'),
+      'icon' => 'home',
+      'active' => ['dashboard'],
+      ],
+
+      // School Management Section
+      [
+      'type' => 'category',
+      'label' => 'School Management',
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'students',
+      'label' => 'Students',
+      'icon' => 'users',
+      'permission' => 'user.read',
+      'items' => [
+      [
+      'label' => 'All Students',
+      'url' => route('admin.students.index'),
+      'active' => ['admin.students.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Add Student',
+      'url' => route('admin.students.create'),
+      'active' => ['admin.students.create'],
+      'permission' => 'academic.create'
+      ],
+      [
+      'label' => 'Student Reports',
+      'url' => route('students.reports'),
+      'active' => ['students.reports'],
+      'permission' => 'report.read'
+      ],
+      ],
+      'active_patterns' => ['admin.students.index', 'admin.students.create', 'admin.students.show', 'admin.students.edit', 'students.reports']
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'teachers',
+      'label' => 'Teachers',
+      'icon' => 'award',
+      'permission' => 'user.read',
+      'items' => [
+      [
+      'label' => 'All Teachers',
+      'url' => route('admin.teachers.index'),
+      'active' => ['admin.teachers.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Add Teacher',
+      'url' => route('admin.teachers.create'),
+      'active' => ['admin.teachers.create'],
+      'permission' => 'academic.create'
+      ],
+      [
+      'label' => 'Password Management',
+      'url' => route('admin.teacher.password.index'),
+      'active' => ['admin.teacher.password.index'],
+      'permission' => 'academic.update'
+      ],
+      ],
+      'active_patterns' => ['admin.teachers.index', 'admin.teachers.create', 'admin.teacher.password.index']
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'classes',
+      'label' => 'Classes',
+      'icon' => 'book-open',
+      'permission' => 'user.read',
+      'items' => [
+      [
+      'label' => 'All Classes',
+      'url' => route('admin.classes.index'),
+      'active' => ['admin.classes.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Add Class',
+      'url' => route('admin.classes.create'),
+      'active' => ['admin.classes.create'],
+      'permission' => 'academic.create'
+      ],
+      ],
+      'active_patterns' => ['admin.classes.index', 'admin.classes.create', 'admin.classes.edit']
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'academics',
+      'label' => 'Academics',
+      'icon' => 'book',
+      'permission' => 'academic.read',
+      'items' => [
+      [
+      'label' => 'Subjects',
+      'url' => route('admin.academics.subjects.index'),
+      'active' => ['admin.academics.subjects.index', 'subjects.edit', 'admin.academics.subjects.edit'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Assign Subjects',
+      'url' => route('admin.academics.assign-subjects.index'),
+      'active' => ['admin.academics.assign-subjects.index','admin.academics.assign-subjects.edit'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'All Sessions',
+      'url' => route('admin.sessions.index'),
+      'active' => ['admin.sessions.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Add Session',
+      'url' => route('admin.sessions.create'),
+      'active' => ['admin.sessions.create'],
+      'permission' => 'academic.create'
+      ],
+      [
+      'label' => 'Academic Periods',
+      'url' => route('admin.academics.academic-periods.index'),
+      'active' => ['admin.academics.academic-periods.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Add Academic Period',
+      'url' => route('admin.academics.academic-periods.create'),
+      'active' => ['admin.academics.academic-periods.create'],
+      'permission' => 'academic.create'
+      ],
+      ],
+      'active_patterns' => [
+      'subjects.index',
+      'subjects.create',
+      'subjects.edit',
+      'subjects.show',
+      'admin.sessions.index',
+      'admin.sessions.create',
+      'admin.academics.academic-periods.index',
+      'admin.academics.academic-periods.create',
+      'admin.academics.subjects.index',
+      'admin.academics.subjects.edit',
+      'admin.academics.assign-subjects.index',
+      'admin.academics.assign-subjects.create',
+      'admin.academics.assign-subjects.edit'
+      ]
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'enrollments',
+      'label' => 'Enrollments',
+      'icon' => 'book',
+      'permission' => 'academic.read',
+      'items' => [
+      [
+      'label' => 'Enrollment List',
+      'url' => route('admin.enrollments.enrollment-list.index'),
+      'active' => ['admin.enrollments.enrollment-list.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Enroll Students',
+      'url' => route('admin.enrollments.enroll-students.index'),
+      'active' => ['admin.enrollments.enroll-students.index'],
+      'permission' => 'academic.create'
+      ],
+      ],
+      'active_patterns' => [
+      'admin.enrollments.enrollment-list.index',
+      'admin.enrollments.enroll-students.index'
+
+      ]
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'attendance',
+      'label' => 'Attendance',
+      'icon' => 'check-circle',
+      'permission' => 'attendance.read|attendance.create',
+      'items' => [
+      [
+      'label' => 'Take Attendance',
+      'url' => route('admin.attendance.create'),
+      'active' => ['admin.attendance.create'],
+      'permission' => 'attendance.create'
+      ],
+      [
+      'label' => 'Class Report',
+      'url' => route('admin.attendance.class-report'),
+      'active' => ['admin.attendance.class-report'],
+      'permission' => 'attendance.read'
+      ],
+      [
+      'label' => 'Subject Report',
+      'url' => route('admin.attendance.subject-report'),
+      'active' => ['admin.attendance.subject-report'],
+      'permission' => 'attendance.read'
+      ],
+      [
+      'label' => 'Student Report',
+      'url' => route('admin.attendance.student-report'),
+      'active' => ['admin.attendance.student-report'],
+      'permission' => 'attendance.read'
+      ],
+      [
+      'label' => 'Analytics',
+      'url' => route('admin.attendance.analytics'),
+      'active' => ['admin.attendance.analytics'],
+      'permission' => 'attendance.analytics'
+      ],
+      ],
+      'active_patterns' => [
+      'admin.attendance.create',
+      'admin.attendance.class-report',
+      'admin.attendance.subject-report',
+      'admin.attendance.student-report',
+      'admin.attendance.analytics'
+      ]
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'results',
+      'label' => 'Results Management',
+      'icon' => 'file-text',
+      'permission' => 'academic.read',
+      'items' => [
+      [
+      'label' => 'View Results',
+      'url' => route('results.index'),
+      'active' => ['results.index'],
+      'permission' => 'academic.read'
+      ],
+      [
+      'label' => 'Assessments',
+      'url' => route('admin.results-management.assessments.index'),
+      'active' => ['admin.results-management.assessments.index'],
+      'permission' => 'academic.create'
+      ],
+      [
+      'label' => 'Single Upload',
+      'url' => route('results.single-upload'),
+      'active' => ['results.single-upload'],
+      'permission' => 'academic.create'
+      ],
+      [
+      'label' => 'Bulk Upload',
+      'url' => route('results.bulk-upload'),
+      'active' => ['results.bulk-upload'],
+      'permission' => 'academic.create'
+      ],
+      ],
+      'active_patterns' => ['results.single-upload', 'results.bulk-upload']
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'fees',
+      'label' => 'Fees Management',
+      'icon' => 'dollar-sign',
+      'permission' => 'fee.read',
+      'items' => [
+      [
+      'label' => 'Fee Category',
+      'url' => route('admin.fee-management.fee-categories.index'),
+      'active' => ['admin.fee-management.fee-categories.index'],
+      'permission' => 'fee.read'
+      ],
+      [
+      'label' => 'Fees',
+      'url' => route('admin.fee-management.fees.index'),
+      'active' => ['admin.fee-management.fees.index'],
+      'permission' => 'fee.read'
+      ],
+      [
+      'label' => 'Fee Collection',
+      'url' => route('admin.fee-management.collect-fees.index'),
+      'active' => ['admin.fee-management.collect-fees.index'],
+      'permission' => 'fee.collect'
+      ],
+      ],
+      'active_patterns' => [
+      'admin.fee-management.fee-categories.index',
+      'admin.fee-management.fee-categories.create',
+      'admin.fee-management.fee-categories.edit',
+      'admin.fee-management.fees.index',
+      'admin.fee-management.fees.create',
+      'admin.fee-management.fees.edit',
+      'admin.fee-management.collect-fees.index'
+      ]
+      ],
+
+      [
+      'type' => 'category',
+      'label' => 'Administration',
+      ],
+
+      [
+      'type' => 'menu',
+      'id' => 'communications',
+      'label' => 'Communications',
+      'icon' => 'mail',
+      'permission' => 'user.read',
+      'items' => [
+      [
+      'label' => 'Announcements',
+      'url' => route('announcements.index'),
+      'active' => ['announcements.index', 'announcements.create', 'announcements.edit']
+      ],
+      ],
+      'active_patterns' => ['announcements.index', 'announcements.create', 'announcements.edit']
+      ],
+
+      [
+      'type' => 'menu',
+      'id' => 'events',
+      'label' => 'Events',
+      'icon' => 'calendar',
+      'permission' => 'user.read',
+      'items' => [
+      [
+      'label' => 'All Events',
+      'url' => route('events.index'),
+      'active' => ['events.index']
+      ],
+      [
+      'label' => 'Add Event',
+      'url' => route('events.create'),
+      'active' => ['events.create']
+      ],
+      ],
+      'active_patterns' => ['events.index', 'events.create']
+      ],
+
+      // Reports Section
+      [
+      'type' => 'category',
+      'label' => 'Reports',
+      ],
+      [
+      'type' => 'menu',
+      'id' => 'reports',
+      'label' => 'Reports',
+      'icon' => 'pie-chart',
+      'permission' => 'report.read',
+      'items' => [
+      [
+      'label' => 'Student Report',
+      'url' => route('reports.students'),
+      'active' => ['reports.students']
+      ],
+      [
+      'label' => 'Attendance Report',
+      'url' => route('reports.attendance'),
+      'active' => ['reports.attendance']
+      ],
+      [
+      'label' => 'Financial Report',
+      'url' => route('reports.finance'),
+      'active' => ['reports.finance']
+      ],
+      ],
+      'active_patterns' => ['reports.students', 'reports.attendance', 'reports.finance']
+      ],
+
+      // Settings Section
+      [
+      'type' => 'category',
+      'label' => 'Settings',
+      ],
+
+      [
+      'type' => 'menu',
+      'id' => 'settings',
+      'label' => 'Settings',
+      'icon' => 'settings',
+      'permission' => 'user.read|role.read|permission.read|setting.read',
+      'items' => [
+      [
+      'label' => 'Users',
+      'url' => route('admin.users.index'),
+      'active' => ['admin.users.index', 'admin.users.create', 'admin.users.edit', 'admin.users.show'],
+      'permission' => 'user.read'
+      ],
+      [
+      'label' => 'Role & Permission Management',
+      'url' => route('admin.access-control.roles.index'),
+      'active' => ['admin.access-control.roles*', 'admin.access-control.permissions*'],
+      'permission' => 'role.read|permission.read'
+      ],
+      [
+      'label' => 'User Role Assignment',
+      'url' => route('admin.management.users.roles'),
+      'active' => ['admin.management.users.roles', 'admin.management.users.assign-roles'],
+      'permission' => 'user.update'
+      ],
+      [
+      'label' => 'School Settings',
+      'url' => route('settings.school'),
+      'active' => ['settings.school'],
+      'permission' => 'setting.read'
+      ],
+      [
+      'label' => 'System Settings',
+      'url' => route('settings.system'),
+      'active' => ['settings.system'],
+      'permission' => 'setting.read'
+      ],
+      ],
+      'active_patterns' => [
+      'admin.users.index',
+      'admin.users.create',
+      'admin.users.edit',
+      'admin.users.show',
+      'admin.access-control.roles.index',
+      'admin.access-control.roles.create',
+      'admin.access-control.roles.edit',
+      'admin.access-control.permissions.index',
+      'admin.access-control.permissions.create',
+      'admin.access-control.permissions.edit',
+      'admin.management.users.roles',
+      'admin.management.users.assign-roles',
+      'settings.school',
+      'settings.system'
+      ]
+      ],
+      ];
+      @endphp
+
+      @foreach($sidebarMenu as $section)
+      @if($section['type'] === 'category')
+      <li class="nav-item nav-category">{{ $section['label'] }}</li>
+      @elseif($section['type'] === 'link')
+      @php
+      $isActive = isset($section['active']) && isActive($section['active']);
+      @endphp
+      <li class="nav-item">
+        <a href="{{ $section['url'] }}"
+          class="nav-link {{ $isActive ? 'active' : '' }}">
+          <i class="link-icon" data-lucide="{{ $section['icon'] }}"></i>
+          <span class="link-title">{{ $section['label'] }}</span>
         </a>
-        <div class="sidebar-toggler">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </div>
-    <div class="sidebar-body">
-        <ul class="nav" id="sidebarNav">
+      </li>
+      @elseif($section['type'] === 'menu')
+      @php
+      $isMenuActive = false;
+
+      // Check if this specific menu should be active
+      if (isset($section['active_patterns'])) {
+      $isMenuActive = isActive($section['active_patterns']);
+      }
+
+      // Check if user has permission to see this menu section
+      $hasMenuPermission = true;
+      if (isset($section['permission'])) {
+      $permissions = explode('|', $section['permission']);
+      $hasMenuPermission = false;
+      foreach ($permissions as $perm) {
+      if (auth()->user()->can(trim($perm))) {
+      $hasMenuPermission = true;
+      break;
+      }
+      }
+      }
+
+      // Count accessible items in this menu
+      $accessibleItemCount = 0;
+      if ($hasMenuPermission && isset($section['items'])) {
+      foreach ($section['items'] as $item) {
+      $hasItemPermission = true;
+      if (isset($item['permission'])) {
+      $itemPermissions = explode('|', $item['permission']);
+      $hasItemPermission = false;
+      foreach ($itemPermissions as $perm) {
+      if (auth()->user()->can(trim($perm))) {
+      $hasItemPermission = true;
+      break;
+      }
+      }
+      }
+      if ($hasItemPermission) {
+      $accessibleItemCount++;
+      }
+      }
+      }
+      @endphp
+
+      @if($hasMenuPermission && $accessibleItemCount > 0)
+      <li class="nav-item {{ $isMenuActive ? 'active' : '' }}">
+        <a class="nav-link"
+          data-bs-toggle="collapse"
+          href="#{{ $section['id'] }}"
+          role="button"
+          aria-expanded="{{ $isMenuActive ? 'true' : 'false' }}"
+          aria-controls="{{ $section['id'] }}">
+          <i class="link-icon" data-lucide="{{ $section['icon'] }}"></i>
+          <span class="link-title">{{ $section['label'] }}</span>
+          <i class="link-arrow" data-lucide="chevron-down"></i>
+        </a>
+        <div class="collapse {{ $isMenuActive ? 'show' : '' }}"
+          data-bs-parent="#sidebarNav"
+          id="{{ $section['id'] }}">
+          <ul class="nav sub-menu">
+            @foreach($section['items'] as $item)
             @php
-                // Helper function to check active state with exact and wildcard matching
-                function isActive($patterns, $currentRoute = null) {
-                    $currentRoute = $currentRoute ?? request()->route()->getName();
-                    
-                    if (is_array($patterns)) {
-                        foreach ($patterns as $pattern) {
-                            // Check for exact match first (without wildcards)
-                            if ($currentRoute === $pattern) {
-                                return true;
-                            }
-                            
-                            // Check for wildcard match
-                            if (str_ends_with($pattern, '*')) {
-                                $basePattern = rtrim($pattern, '*');
-                                if (str_starts_with($currentRoute, $basePattern)) {
-                                    // Additional check to prevent overlapping patterns
-                                    // Only match if the next character after base is a dot or end of string
-                                    $nextChar = substr($currentRoute, strlen($basePattern), 1);
-                                    if ($nextChar === '.' || $nextChar === '') {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        return false;
-                    }
-                    
-                    return $currentRoute === $patterns;
-                }
+            $isItemActive = isset($item['active']) && isActive($item['active']);
 
-                // Helper function to check if any child is active
-                function isChildActive($items, $currentRoute = null) {
-                    $currentRoute = $currentRoute ?? request()->route()->getName();
-                    foreach ($items as $item) {
-                        if (isset($item['active']) && isActive($item['active'], $currentRoute)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                
-                $currentRoute = request()->route()->getName();
-                
-                $sidebarMenu = [
-                    // Main Section
-                    [
-                        'type' => 'category',
-                        'label' => 'Main',
-                    ],
-                    [
-                        'type' => 'link',
-                        'label' => 'Dashboard',
-                        'url' => route('dashboard'),
-                        'icon' => 'home',
-                        'active' => ['dashboard'],
-                    ],
-
-                    // School Management Section
-                    [
-                        'type' => 'category',
-                        'label' => 'School Management',
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'students',
-                        'label' => 'Students',
-                        'icon' => 'users',
-                        'items' => [
-                            [
-                                'label' => 'All Students',
-                                'url' => route('admin.students.index'),
-                                'active' => ['admin.students.index']
-                            ],
-                            [
-                                'label' => 'Add Student',
-                                'url' => route('admin.students.create'),
-                                'active' => ['admin.students.create']
-                            ],
-                            [
-                                'label' => 'Student Reports',
-                                'url' => route('students.reports'),
-                                'active' => ['students.reports']
-                            ],
-                        ],
-                        'active_patterns' => ['admin.students.index', 'admin.students.create', 'admin.students.show', 'admin.students.edit', 'students.reports']
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'teachers',
-                        'label' => 'Teachers',
-                        'icon' => 'award',
-                        'items' => [
-                            [
-                                'label' => 'All Teachers',
-                                'url' => route('admin.teachers.index'),
-                                'active' => ['admin.teachers.index']
-                            ],
-                            [
-                                'label' => 'Add Teacher',
-                                'url' => route('admin.teachers.create'),
-                                'active' => ['admin.teachers.create']
-                            ],
-                            [
-                                'label' => 'Password Management',
-                                'url' => route('admin.teacher.password.index'),
-                                'active' => ['admin.teacher.password.index']
-                            ],
-                        ],
-                        'active_patterns' => ['admin.teachers.index', 'admin.teachers.create', 'admin.teacher.password.index']
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'classes',
-                        'label' => 'Classes',
-                        'icon' => 'book-open',
-                        'items' => [
-                            [
-                                'label' => 'All Classes',
-                                'url' => route('admin.classes.index'),
-                                'active' => ['admin.classes.index']
-                            ],
-                            [
-                                'label' => 'Add Class',
-                                'url' => route('admin.classes.create'),
-                                'active' => ['admin.classes.create']
-                            ],
-                        ],
-                        'active_patterns' => ['admin.classes.index', 'admin.classes.create', 'admin.classes.edit']
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'academics',
-                        'label' => 'Academics',
-                        'icon' => 'book',
-                        'items' => [
-                            [
-                                'label' => 'Subjects',
-                                'url' => route('admin.academics.subjects.index'),
-                                'active' => ['admin.academics.subjects.index', 'subjects.edit', 'admin.academics.subjects.edit']
-                            ],
-                            [
-                                'label' => 'Assign Subjects',
-                                'url' => route('admin.academics.assign-subjects.index'),
-                                'active' => ['admin.academics.assign-subjects.index','admin.academics.assign-subjects.edit']
-                            ],
-                            [
-                                'label' => 'All Sessions',
-                                'url' => route('admin.sessions.index'),
-                                'active' => ['admin.sessions.index']
-                            ],
-                            [
-                                'label' => 'Add Session',
-                                'url' => route('admin.sessions.create'),
-                                'active' => ['admin.sessions.create']
-                            ],
-                            [
-                                'label' => 'Academic Periods',
-                                'url' => route('admin.academics.academic-periods.index'),
-                                'active' => ['admin.academics.academic-periods.index']
-                            ],
-                            [
-                                'label' => 'Add Academic Period',
-                                'url' => route('admin.academics.academic-periods.create'),
-                                'active' => ['admin.academics.academic-periods.create']
-                            ],
-                        ],
-                        'active_patterns' => [
-                            'subjects.index',
-                            'subjects.create',
-                            'subjects.edit',
-                            'subjects.show',
-                            'admin.sessions.index',
-                            'admin.sessions.create',
-                            'admin.academics.academic-periods.index',
-                            'admin.academics.academic-periods.create',
-                            'admin.academics.subjects.index',
-                            'admin.academics.subjects.edit',
-                            'admin.academics.assign-subjects.index',
-                            'admin.academics.assign-subjects.create',
-                            'admin.academics.assign-subjects.edit'
-                        ]
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'enrollments',
-                        'label' => 'Enrollments',
-                        'icon' => 'book',
-                        'items' => [
-                            [
-                                'label' => 'Enrollment List',
-                                'url' => route('admin.enrollments.enrollment-list.index'),
-                                'active' => ['admin.enrollments.enrollment-list.index']
-                            ],
-                            [
-                                'label' => 'Enroll Students',
-                                'url' => route('admin.enrollments.enroll-students.index'),
-                                'active' => ['admin.enrollments.enroll-students.index']
-                            ],
-                        ],
-                        'active_patterns' => [
-                            'admin.enrollments.enrollment-list.index',
-                            'admin.enrollments.enroll-students.index'
-                            
-                        ]
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'results',
-                        'label' => 'Results Management',
-                        'icon' => 'file-text',
-                        'items' => [
-                            [
-                                'label' => 'View Results',
-                                'url' => route('results.index'),
-                                'active' => ['results.index']
-                            ],
-                            [
-                                'label' => 'Assessments',
-                                'url' => route('admin.results-management.assessments.index'),
-                                'active' => ['admin.results-management.assessments.index']
-                            ],
-                            [
-                                'label' => 'Single Upload',
-                                'url' => route('results.single-upload'),
-                                'active' => ['results.single-upload']
-                            ],
-                            [
-                                'label' => 'Bulk Upload',
-                                'url' => route('results.bulk-upload'),
-                                'active' => ['results.bulk-upload']
-                            ],
-                        ],
-                        'active_patterns' => ['results.single-upload', 'results.bulk-upload']
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'fees',
-                        'label' => 'Fees Management',
-                        'icon' => 'dollar-sign',
-                        'items' => [
-                            [
-                                'label' => 'Fee Category',
-                                'url' => route('admin.fee-management.fee-categories.index'),
-                                'active' => ['admin.fee-management.fee-categories.index']
-                            ],
-                            [
-                                'label' => 'Fees',
-                                'url' => route('admin.fee-management.fees.index'),
-                                'active' => ['admin.fee-management.fees.index']
-                            ],
-                            [
-                                'label' => 'Fee Collection',
-                                'url' => route('admin.fee-management.collect-fees.index'),
-                                'active' => ['admin.fee-management.collect-fees.index']
-                            ],
-                        ],
-                        'active_patterns' => [
-                            'admin.fee-management.fee-categories.index',
-                            'admin.fee-management.fee-categories.create',
-                            'admin.fee-management.fee-categories.edit',
-                            'admin.fee-management.fees.index',
-                            'admin.fee-management.fees.create',
-                            'admin.fee-management.fees.edit',
-                            'admin.fee-management.collect-fees.index'
-                            ]
-                    ],
-
-                    [
-                        'type' => 'category',
-                        'label' => 'Administration',
-                    ],
-
-                    [
-                        'type' => 'menu',
-                        'id' => 'communications',
-                        'label' => 'Communications',
-                        'icon' => 'mail',
-                        'items' => [
-                            [
-                                'label' => 'Announcements',
-                                'url' => route('announcements.index'),
-                                'active' => ['announcements.index', 'announcements.create', 'announcements.edit']
-                            ],
-                        ],
-                        'active_patterns' => ['announcements.index', 'announcements.create', 'announcements.edit']
-                    ],
-
-                    [
-                        'type' => 'menu',
-                        'id' => 'events',
-                        'label' => 'Events',
-                        'icon' => 'calendar',
-                        'items' => [
-                            [
-                                'label' => 'All Events',
-                                'url' => route('events.index'),
-                                'active' => ['events.index']
-                            ],
-                            [
-                                'label' => 'Add Event',
-                                'url' => route('events.create'),
-                                'active' => ['events.create']
-                            ],
-                        ],
-                        'active_patterns' => ['events.index', 'events.create']
-                    ],
-
-                    // Reports Section
-                    [
-                        'type' => 'category',
-                        'label' => 'Reports',
-                    ],
-                    [
-                        'type' => 'menu',
-                        'id' => 'reports',
-                        'label' => 'Reports',
-                        'icon' => 'pie-chart',
-                        'items' => [
-                            [
-                                'label' => 'Student Report',
-                                'url' => route('reports.students'),
-                                'active' => ['reports.students']
-                            ],
-                            [
-                                'label' => 'Attendance Report',
-                                'url' => route('reports.attendance'),
-                                'active' => ['reports.attendance']
-                            ],
-                            [
-                                'label' => 'Financial Report',
-                                'url' => route('reports.finance'),
-                                'active' => ['reports.finance']
-                            ],
-                        ],
-                        'active_patterns' => ['reports.students', 'reports.attendance', 'reports.finance']
-                    ],
-
-                    // Settings Section
-                    [
-                        'type' => 'category',
-                        'label' => 'Settings',
-                    ],
-
-                    [
-                        'type' => 'menu',
-                        'id' => 'settings',
-                        'label' => 'Settings',
-                        'icon' => 'settings',
-                        'items' => [
-                            [
-                                'label' => 'Users',
-                                'url' => route('users.index'),
-                                'active' => ['users.index', 'users.create', 'users.edit']
-                            ],
-                            [
-                                'label' => 'Roles & Permissions',
-                                'url' => route('roles.index'),
-                                'active' => ['roles.index', 'roles.create', 'roles.edit']
-                            ],
-                            [
-                                'label' => 'School Settings',
-                                'url' => route('settings.school'),
-                                'active' => ['settings.school']
-                            ],
-                            [
-                                'label' => 'System Settings',
-                                'url' => route('settings.system'),
-                                'active' => ['settings.system']
-                            ],
-                        ],
-                        'active_patterns' => [
-                            'users.index',
-                            'users.create',
-                            'users.edit',
-                            'roles.index',
-                            'roles.create',
-                            'roles.edit',
-                            'settings.school',
-                            'settings.system'
-                        ]
-                    ],
-                ];
+            // Check item-level permissions
+            $hasItemPermission = true;
+            if (isset($item['permission'])) {
+            $itemPermissions = explode('|', $item['permission']);
+            $hasItemPermission = false;
+            foreach ($itemPermissions as $perm) {
+            if (auth()->user()->can(trim($perm))) {
+            $hasItemPermission = true;
+            break;
+            }
+            }
+            }
             @endphp
-
-            @foreach($sidebarMenu as $section)
-                @if($section['type'] === 'category')
-                    <li class="nav-item nav-category">{{ $section['label'] }}</li>
-                @elseif($section['type'] === 'link')
-                    @php
-                        $isActive = isset($section['active']) && isActive($section['active']);
-                    @endphp
-                    <li class="nav-item">
-                        <a href="{{ $section['url'] }}" 
-                           class="nav-link {{ $isActive ? 'active' : '' }}">
-                            <i class="link-icon" data-lucide="{{ $section['icon'] }}"></i>
-                            <span class="link-title">{{ $section['label'] }}</span>
-                        </a>
-                    </li>
-                @elseif($section['type'] === 'menu')
-                    @php
-                        $isMenuActive = false;
-                        
-                        // Check if this specific menu should be active
-                        if (isset($section['active_patterns'])) {
-                            $isMenuActive = isActive($section['active_patterns']);
-                        }
-                    @endphp
-                    
-                    <li class="nav-item {{ $isMenuActive ? 'active' : '' }}">
-                        <a class="nav-link " 
-                           data-bs-toggle="collapse" 
-                           href="#{{ $section['id'] }}" 
-                           role="button" 
-                           aria-expanded="{{ $isMenuActive ? 'true' : 'false' }}" 
-                           aria-controls="{{ $section['id'] }}">
-                            <i class="link-icon" data-lucide="{{ $section['icon'] }}"></i>
-                            <span class="link-title">{{ $section['label'] }}</span>
-                            <i class="link-arrow" data-lucide="chevron-down"></i>
-                        </a>
-                        <div class="collapse {{ $isMenuActive ? 'show' : '' }}" 
-                             data-bs-parent="#sidebarNav" 
-                             id="{{ $section['id'] }}">
-                            <ul class="nav sub-menu">
-                                @foreach($section['items'] as $item)
-                                    @php
-                                        $isItemActive = isset($item['active']) && isActive($item['active']);
-                                    @endphp
-                                    <li class="nav-item">
-                                        <a href="{{ $item['url'] }}" 
-                                           class="nav-link {{ $isItemActive ? 'active' : '' }}">
-                                            {{ $item['label'] }}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </li>
-                @endif
+            @if($hasItemPermission)
+            <li class="nav-item">
+              <a href="{{ $item['url'] }}"
+                class="nav-link {{ $isItemActive ? 'active' : '' }}">
+                {{ $item['label'] }}
+              </a>
+            </li>
+            @endif
             @endforeach
-        </ul>
-    </div>
+          </ul>
+        </div>
+      </li>
+      @endif
+      @endif
+      @endforeach
+    </ul>
+  </div>
 </nav>
 
 
@@ -530,7 +677,7 @@
 
 
 
-	<!-- <nav class="sidebar">
+<!-- <nav class="sidebar">
       <div class="sidebar-header">
         <a href="#" class="sidebar-brand">
           Noble<span>UI</span>

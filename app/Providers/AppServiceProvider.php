@@ -20,7 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
-         Paginator::useBootstrapFive(); // or useBootstrapFour()
+        // Load helper files
+        require_once app_path('Helpers/SettingHelper.php');
+
+        // Use Bootstrap pagination
+        Paginator::useBootstrapFive();
     }
 }

@@ -29,9 +29,18 @@ class Student extends Model
         return $this->hasMany(LevelData::class);
     }
 
+    public function levelData()
+    {
+        return $this->levels();
+    }
 
     public function latestLevel()
     {
         return $this->hasOne(LevelData::class)->latestOfMany();
+    }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
     }
 }
