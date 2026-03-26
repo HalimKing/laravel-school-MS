@@ -13,17 +13,17 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      */
-   // In StudentController.php
+    // In StudentController.php
     public function index(Request $request)
     {
         $search = strtolower($request->input('search'));
 
         $students = Student::with('latestLevel.class')
             ->when($search, function ($query, $search) {
-                return $query->where(function($q) use ($search) {
+                return $query->where(function ($q) use ($search) {
                     $q->whereRaw('LOWER(first_name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(student_id) LIKE ?', ["%{$search}%"]);
+                        ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(student_id) LIKE ?', ["%{$search}%"]);
                 });
             })
             ->orderBy('created_at', 'desc')
@@ -146,5 +146,72 @@ class StudentController extends Controller
         //
         $student->delete();
         return redirect()->route('admin.students.index')->with('success', 'Student deleted successfully');
+    }
+
+    /**
+     * Display student enrollment report
+     */
+    public function report(Request $request)
+    {
+        $search = $request->input('search');
+        $classId = $request->input('class_id');
+        $academicYearId = $request->input('academic_year_id');
+        $gender = $request->input('gender');
+        $status = $request->input('status');
+
+        $query = Student::with('latestLevel.classModel');
+
+        // Apply filters
+        if ($search) {
+            $search = strtolower($search);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(first_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(student_id) LIKE ?', ["%{$search}%"]);
+            });
+        }
+
+        if ($classId) {
+            $query->whereHas('latestLevel', function ($q) use ($classId) {
+                $q->where('class_id', $classId);
+            });
+        }
+
+        if ($academicYearId) {
+            $query->whereHas('latestLevel', function ($q) use ($academicYearId) {
+                $q->where('academic_year_id', $academicYearId);
+            });
+        }
+
+        if ($gender) {
+            $query->where('gender', $gender);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $students = $query->orderBy('first_name')->paginate(15)->withQueryString();
+
+        $classes = ClassModel::orderBy('name')->get();
+        $academicYears = AcademicYear::orderBy('name', 'desc')->get();
+        $genders = ['Male', 'Female'];
+
+        // Calculate statistics
+        $totalStudents = Student::count();
+        $maleStudents = Student::where('gender', 'Male')->count();
+        $femaleStudents = Student::where('gender', 'Female')->count();
+        $activeStudents = Student::where('status', 'active')->count();
+
+        return view('admin.reports.student-report', compact(
+            'students',
+            'classes',
+            'academicYears',
+            'genders',
+            'totalStudents',
+            'maleStudents',
+            'femaleStudents',
+            'activeStudents'
+        ));
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\CollectFeeController;
+use App\Http\Controllers\DataSyncController;
 use App\Http\Controllers\EnrollmentListController;
 use App\Http\Controllers\EnrollStudentstController;
 use App\Http\Controllers\EventController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\FeeController;
 use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResultsController;
+use App\Http\Controllers\ResultsViewerController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\SessionController;
@@ -247,6 +249,23 @@ Route::middleware('auth')->group(function () {
                 'destroy' => 'can:academic.delete',
             ]);
         });
+
+        // Data Synchronization - admin only
+        Route::prefix('data-sync')->name('data-sync.')->middleware('can:user.read')->group(function () {
+            Route::get('/', [DataSyncController::class, 'index'])->name('index');
+            Route::post('teachers', [DataSyncController::class, 'syncTeachers'])->name('sync-teachers');
+            Route::post('guardians', [DataSyncController::class, 'syncGuardians'])->name('sync-guardians');
+            Route::post('students', [DataSyncController::class, 'syncStudents'])->name('sync-students');
+            Route::post('all', [DataSyncController::class, 'syncAll'])->name('sync-all');
+            Route::post('check-duplicates', [DataSyncController::class, 'checkDuplicates'])->name('check-duplicates');
+        });
+    });
+
+    // Results Viewer - Role-based view for parents, students, admins - OUTSIDE admin prefix
+    Route::prefix('results-viewer')->name('results-viewer.')->middleware('auth')->group(function () {
+        Route::get('/', [ResultsViewerController::class, 'viewResults'])->name('view');
+        Route::get('/students', [ResultsViewerController::class, 'getStudents'])->name('get-students'); // AJAX
+        Route::post('/export', [ResultsViewerController::class, 'exportResults'])->name('export');
     });
 
     // Results - teacher and admin can manage, students/parents can read

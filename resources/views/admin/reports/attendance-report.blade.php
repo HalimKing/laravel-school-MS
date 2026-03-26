@@ -132,8 +132,24 @@
             <tbody>
                 @forelse($records as $record)
                 <tr>
-                    <td colspan="6" class="text-center py-4 text-muted">
-                        No enrollment records found matching the criteria.
+                    <td>{{ $record->attendance_date ? \Carbon\Carbon::parse($record->attendance_date)->format('M d, Y') : 'N/A' }}</td>
+                    <td>{{ $record->student->first_name ?? '' }} {{ $record->student->last_name ?? '' }}</td>
+                    <td>{{ $record->student->latestLevel?->class?->name ?? 'N/A' }}</td>
+                    <td>
+                        @if($record->status === 'present')
+                        <span class="badge bg-success">Present</span>
+                        @elseif($record->status === 'absent')
+                        <span class="badge bg-danger">Absent</span>
+                        @else
+                        <span class="badge bg-warning">{{ ucfirst($record->status) }}</span>
+                        @endif
+                    </td>
+                    <td>{{ $record->remarks ?? '-' }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        No attendance records found matching the criteria.
                     </td>
                 </tr>
                 @endforelse
@@ -143,7 +159,7 @@
 </div>
 
 <div class="mt-4">
-    {{ $students->links() }}
+    {{ $records->links() }}
 </div>
 
 @endsection

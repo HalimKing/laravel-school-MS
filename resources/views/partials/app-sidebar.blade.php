@@ -292,10 +292,15 @@
       'id' => 'results',
       'label' => 'Results Management',
       'icon' => 'file-text',
-      'permission' => 'academic.read',
       'items' => [
       [
-      'label' => 'View Results',
+      'label' => 'View My Results',
+      'url' => route('results-viewer.view'),
+      'active' => ['results-viewer.view'],
+      'show' => true // Visible to all authenticated users
+      ],
+      [
+      'label' => 'View All Results',
       'url' => route('results.index'),
       'active' => ['results.index'],
       'permission' => 'academic.read'
@@ -319,7 +324,7 @@
       'permission' => 'academic.create'
       ],
       ],
-      'active_patterns' => ['results.single-upload', 'results.bulk-upload']
+      'active_patterns' => ['results-viewer.view', 'results.single-upload', 'results.bulk-upload']
       ],
       [
       'type' => 'menu',
@@ -474,6 +479,12 @@
       'active' => ['settings.system'],
       'permission' => 'setting.read'
       ],
+      [
+      'label' => 'Sync Data',
+      'url' => route('admin.data-sync.index'),
+      'active' => ['admin.data-sync.index'],
+      'permission' => 'user.read'
+      ],
       ],
       'active_patterns' => [
       'admin.users.index',
@@ -489,7 +500,8 @@
       'admin.management.users.roles',
       'admin.management.users.assign-roles',
       'settings.school',
-      'settings.system'
+      'settings.system',
+      'admin.data-sync.index'
       ]
       ],
       ];

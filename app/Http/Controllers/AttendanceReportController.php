@@ -82,5 +82,4 @@ class AttendanceReportController extends Controller
     }
 }
 
-    }
-}
+

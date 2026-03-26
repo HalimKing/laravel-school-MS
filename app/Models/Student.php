@@ -43,4 +43,20 @@ class Student extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    /**
+     * Get the parent/guardian user associated with this student
+     */
+    public function parentUser()
+    {
+        return $this->belongsTo(User::class, 'parent_email', 'email');
+    }
+
+    /**
+     * Get the results for this student
+     */
+    public function results()
+    {
+        return $this->hasMany(Result::class);
+    }
 }
