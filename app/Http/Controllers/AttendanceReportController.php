@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\ClassModel;
 use App\Models\Student;
 use App\Models\AcademicYear;
+use App\Models\AcademicPeriod;
 use App\Models\LevelData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,7 @@ class AttendanceReportController extends Controller
         // Get filter options
         $classes = ClassModel::all();
         $academicYears = AcademicYear::all();
+        $academicPeriods = AcademicPeriod::all();
 
         // Calculate attendance statistics
         $totalRecords = Attendance::count();
@@ -72,6 +74,7 @@ class AttendanceReportController extends Controller
             'records',
             'classes',
             'academicYears',
+            'academicPeriods',
             'totalRecords',
             'presentCount',
             'absentCount',
@@ -81,5 +84,3 @@ class AttendanceReportController extends Controller
         ));
     }
 }
-
-

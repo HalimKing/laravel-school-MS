@@ -91,6 +91,18 @@
                 </div>
 
                 <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Period</label>
+                    <select name="academic_period_id" class="form-select">
+                        <option value="">All Periods</option>
+                        @foreach($academicPeriods as $period)
+                        <option value="{{ $period->id }}" {{ request('academic_period_id') == $period->id ? 'selected' : '' }}>
+                            {{ $period->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
                     <label class="form-label fw-bold">From Date</label>
                     <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
                 </div>
@@ -150,14 +162,15 @@
         <h6 class="card-title fw-bold mb-0">Attendance History</h6>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0" id="studentAttendanceTable">
             <thead class="table-light">
                 <tr>
-                    <th width="18%">Date</th>
-                    <th width="18%">Class</th>
-                    <th width="18%">Subject</th>
-                    <th width="16%">Status</th>
-                    <th width="30%">Remarks</th>
+                    <th width="15%">Date</th>
+                    <th width="15%">Class</th>
+                    <th width="12%">Period</th>
+                    <th width="15%">Subject</th>
+                    <th width="15%">Status</th>
+                    <th width="28%">Remarks</th>
                 </tr>
             </thead>
             <tbody>
@@ -168,6 +181,13 @@
                         <br><small class="text-muted">{{ $record->attendance_date->format('D') }}</small>
                     </td>
                     <td>{{ $record->classModel->name ?? 'N/A' }}</td>
+                    <td>
+                        @if($record->academicPeriod)
+                        <span class="badge bg-primary">{{ $record->academicPeriod->name }}</span>
+                        @else
+                        <span class="text-muted">-</span>
+                        @endif
+                    </td>
                     <td>{{ $record->subject->name ?? 'General' }}</td>
                     <td>
                         @php
@@ -188,7 +208,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-4 text-muted">
+                    <td colspan="6" class="text-center py-4 text-muted">
                         {{ $selectedStudent ? 'No attendance records found for this student.' : 'Select a student to view their attendance history.' }}
                     </td>
                 </tr>
@@ -201,5 +221,30 @@
 <div class="mt-4">
     {{ $records->links() }}
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if ($.fn.DataTable.isDataTable('#studentAttendanceTable')) {
+            $('#studentAttendanceTable').DataTable().destroy();
+        }
+
+        $('#studentAttendanceTable').DataTable({
+            pageLength: 50,
+            responsive: true,
+            order: [
+                [0, 'desc']
+            ],
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            language: {
+                searchPlaceholder: 'Search by date, class, period, subject, status...'
+            }
+        });
+    });
+</script>
+@endpush
 
 @endsection

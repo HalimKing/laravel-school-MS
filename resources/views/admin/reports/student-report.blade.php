@@ -2,6 +2,114 @@
 
 @section('title', 'Student Report')
 
+@push('styles')
+<style>
+    @media print {
+
+        /* Hide everything except the table */
+        body>* {
+            display: none;
+        }
+
+        /* Hide header, buttons, and controls */
+        .card.mb-4.p-4 {
+            display: none !important;
+        }
+
+        /* Hide alerts and messages */
+        .alert,
+        .alert-dismissible {
+            display: none !important;
+        }
+
+        /* Hide statistics cards */
+        .row.mb-4:has(.col-md-3) {
+            display: none !important;
+        }
+
+        /* Hide filters section */
+        .card.mb-4 .filter-form {
+            display: none !important;
+        }
+
+        .card:has(.filter-form) {
+            display: none !important;
+        }
+
+        /* Hide pagination */
+        .mt-4,
+        nav[role="navigation"] {
+            display: none !important;
+        }
+
+        /* Show only the table card */
+        .card:has(.table) {
+            display: block !important;
+            border: none;
+            box-shadow: none;
+            page-break-before: avoid;
+        }
+
+        .main-wrapper {
+            display: contents;
+        }
+
+        .page-wrapper {
+            display: contents;
+        }
+
+        .page-content {
+            display: block;
+        }
+
+        /* Print-friendly table styling */
+        .table {
+            font-size: 11px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .table thead {
+            display: table-header-group;
+            background: #f8f9fa !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .table tbody tr {
+            page-break-inside: avoid;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table td,
+        .table th {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .table-light {
+            background: #f8f9fa !important;
+        }
+
+        /* Badge styling for print */
+        .badge {
+            border: 1px solid #000;
+            color: #000 !important;
+            background: #fff !important;
+            padding: 2px 6px;
+            font-weight: 600;
+        }
+
+        /* Page margins */
+        @page {
+            margin: 10mm;
+            size: A4;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div class="card mb-4 p-4">
@@ -20,7 +128,22 @@
 
 @include('includes.message')
 
+<!-- No Data Message -->
+@if(!$hasFilters)
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    <div class="d-flex align-items-center">
+        <i data-lucide="info" style="width: 20px; height: 20px; margin-right: 12px;"></i>
+        <div>
+            <strong>Welcome to Student Report</strong>
+            <p class="mb-0">Please apply filters below to view student data. Select a class, academic year, or search by name/ID to get started.</p>
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <!-- Statistics Cards -->
+@if($hasFilters)
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="card">
@@ -55,6 +178,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Filters -->
 <div class="card mb-4">
@@ -125,6 +249,7 @@
 </div>
 
 <!-- Students Table -->
+@if($hasFilters)
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
@@ -196,5 +321,13 @@
 <div class="mt-4">
     {{ $students->links() }}
 </div>
+@else
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i data-lucide="search" style="width: 48px; height: 48px; color: #ccc; margin-bottom: 12px;"></i>
+        <p class="text-muted mb-0">Apply filters above to search and view student records</p>
+    </div>
+</div>
+@endif
 
 @endsection

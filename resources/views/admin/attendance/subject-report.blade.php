@@ -109,6 +109,18 @@
                 </div>
 
                 <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Period</label>
+                    <select name="academic_period_id" class="form-select">
+                        <option value="">All Periods</option>
+                        @foreach($academicPeriods as $period)
+                        <option value="{{ $period->id }}" {{ request('academic_period_id') == $period->id ? 'selected' : '' }}>
+                            {{ $period->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
                     <label class="form-label fw-bold">From Date</label>
                     <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
                 </div>
@@ -134,14 +146,15 @@
         <h6 class="card-title fw-bold mb-0">Attendance Details</h6>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0" id="subjectAttendanceTable">
             <thead class="table-light">
                 <tr>
-                    <th width="12%">Date</th>
-                    <th width="20%">Student</th>
-                    <th width="18%">Class</th>
-                    <th width="18%">Subject</th>
-                    <th width="15%">Status</th>
+                    <th width="11%">Date</th>
+                    <th width="18%">Student</th>
+                    <th width="15%">Class</th>
+                    <th width="11%">Period</th>
+                    <th width="15%">Subject</th>
+                    <th width="13%">Status</th>
                     <th width="17%">Remarks</th>
                 </tr>
             </thead>
@@ -156,6 +169,13 @@
                         <br><small class="text-muted">{{ $record->student->student_id }}</small>
                     </td>
                     <td>{{ $record->classModel->name ?? 'N/A' }}</td>
+                    <td>
+                        @if($record->academicPeriod)
+                        <span class="badge bg-primary">{{ $record->academicPeriod->name }}</span>
+                        @else
+                        <span class="text-muted">-</span>
+                        @endif
+                    </td>
                     <td>{{ $record->subject->name ?? 'N/A' }}</td>
                     <td>
                         @php
@@ -176,7 +196,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center py-4 text-muted">
+                    <td colspan="7" class="text-center py-4 text-muted">
                         No subject attendance records found.
                     </td>
                 </tr>
@@ -601,6 +621,28 @@
             alert('Error downloading PDF. Please try again.');
         }
     }
+
+    // Initialize DataTables
+    document.addEventListener('DOMContentLoaded', function() {
+        if ($.fn.DataTable.isDataTable('#subjectAttendanceTable')) {
+            $('#subjectAttendanceTable').DataTable().destroy();
+        }
+
+        $('#subjectAttendanceTable').DataTable({
+            pageLength: 50,
+            responsive: true,
+            order: [
+                [0, 'desc']
+            ],
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            language: {
+                searchPlaceholder: 'Search by student, class, period, subject, etc...'
+            }
+        });
+    });
 </script>
 @endpush
 

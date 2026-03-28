@@ -13,6 +13,7 @@ class Attendance extends Model
         'level_data_id',
         'class_id',
         'academic_year_id',
+        'academic_period_id',
         'subject_id',
         'teacher_id',
         'attendance_date',
@@ -43,6 +44,11 @@ class Attendance extends Model
     public function academicYear()
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function academicPeriod()
+    {
+        return $this->belongsTo(AcademicPeriod::class);
     }
 
     public function subject()

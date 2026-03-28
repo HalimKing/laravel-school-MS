@@ -94,6 +94,18 @@
                 </div>
 
                 <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Period</label>
+                    <select name="academic_period_id" class="form-select">
+                        <option value="">All Periods</option>
+                        @foreach($academicPeriods as $period)
+                        <option value="{{ $period->id }}" {{ request('academic_period_id') == $period->id ? 'selected' : '' }}>
+                            {{ $period->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
                     <label class="form-label fw-bold">From Date</label>
                     <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
                 </div>
@@ -119,14 +131,15 @@
         <h6 class="card-title fw-bold mb-0">Attendance Records</h6>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0" id="attendanceTable">
             <thead class="table-light">
                 <tr>
-                    <th width="14%">Date</th>
-                    <th width="22%">Student</th>
-                    <th width="18%">Class</th>
-                    <th width="15%">Status</th>
-                    <th width="31%">Remarks</th>
+                    <th width="12%">Date</th>
+                    <th width="20%">Student</th>
+                    <th width="15%">Class</th>
+                    <th width="13%">Period</th>
+                    <th width="13%">Status</th>
+                    <th width="27%">Remarks</th>
                 </tr>
             </thead>
             <tbody>
@@ -135,6 +148,7 @@
                     <td>{{ $record->attendance_date ? \Carbon\Carbon::parse($record->attendance_date)->format('M d, Y') : 'N/A' }}</td>
                     <td>{{ $record->student->first_name ?? '' }} {{ $record->student->last_name ?? '' }}</td>
                     <td>{{ $record->student->latestLevel?->class?->name ?? 'N/A' }}</td>
+                    <td>{{ $record->academicPeriod?->name ?? 'N/A' }}</td>
                     <td>
                         @if($record->status === 'present')
                         <span class="badge bg-success">Present</span>
@@ -148,7 +162,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-4 text-muted">
+                    <td colspan="6" class="text-center py-4 text-muted">
                         No attendance records found matching the criteria.
                     </td>
                 </tr>
@@ -161,5 +175,30 @@
 <div class="mt-4">
     {{ $records->links() }}
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if ($.fn.DataTable.isDataTable('#attendanceTable')) {
+            $('#attendanceTable').DataTable().destroy();
+        }
+
+        $('#attendanceTable').DataTable({
+            pageLength: 50,
+            responsive: true,
+            order: [
+                [0, 'desc']
+            ],
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            language: {
+                searchPlaceholder: 'Search by name, date, etc...'
+            }
+        });
+    });
+</script>
+@endpush
 
 @endsection

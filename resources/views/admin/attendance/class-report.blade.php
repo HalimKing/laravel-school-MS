@@ -88,6 +88,18 @@
                 </div>
 
                 <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Period</label>
+                    <select name="academic_period_id" class="form-select">
+                        <option value="">All Periods</option>
+                        @foreach($academicPeriods as $period)
+                        <option value="{{ $period->id }}" {{ request('academic_period_id') == $period->id ? 'selected' : '' }}>
+                            {{ $period->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
                     <label class="form-label fw-bold">Subject</label>
                     <select name="subject_id" class="form-select">
                         <option value="">All Subjects</option>
@@ -122,15 +134,16 @@
 <!-- Attendance Records Table -->
 <div class="card">
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0" id="classAttendanceTable">
             <thead class="table-light">
                 <tr>
-                    <th width="12%">Date</th>
-                    <th width="22%">Student</th>
-                    <th width="15%">Class</th>
-                    <th width="18%">Subject</th>
+                    <th width="11%">Date</th>
+                    <th width="20%">Student</th>
+                    <th width="13%">Class</th>
+                    <th width="12%">Period</th>
+                    <th width="15%">Subject</th>
                     <th width="13%">Status</th>
-                    <th width="20%">Remarks</th>
+                    <th width="16%">Remarks</th>
                 </tr>
             </thead>
             <tbody>
@@ -144,6 +157,13 @@
                         <br><small class="text-muted">{{ $record->student->student_id }}</small>
                     </td>
                     <td>{{ $record->classModel->name ?? 'N/A' }}</td>
+                    <td>
+                        @if($record->academicPeriod)
+                        <span class="badge bg-primary">{{ $record->academicPeriod->name }}</span>
+                        @else
+                        <span class="text-muted">-</span>
+                        @endif
+                    </td>
                     <td>
                         @if($record->subject)
                         <span class="badge bg-light text-dark">{{ $record->subject->name }}</span>
@@ -170,7 +190,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-4 text-muted">
+                    <td colspan="7" class="text-center py-4 text-muted">
                         No attendance records found.
                     </td>
                 </tr>
@@ -183,5 +203,30 @@
 <div class="mt-4">
     {{ $records->links() }}
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if ($.fn.DataTable.isDataTable('#classAttendanceTable')) {
+            $('#classAttendanceTable').DataTable().destroy();
+        }
+
+        $('#classAttendanceTable').DataTable({
+            pageLength: 50,
+            responsive: true,
+            order: [
+                [0, 'desc']
+            ],
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            language: {
+                searchPlaceholder: 'Search by student, class, period, etc...'
+            }
+        });
+    });
+</script>
+@endpush
 
 @endsection

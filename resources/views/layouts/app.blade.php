@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/vendors/core/core.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/demo1/style.css') }}">
-    
+
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('assets/vendors/flatpickr/flatpickr.min.css') }}" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="{{ asset('assets/vendors/datatables.net-bs5/dataTables.bootstrap5.css') }}" media="print" onload="this.media='all'">
@@ -23,7 +24,41 @@
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
 
     <script src="{{ asset('assets/js/color-modes.js') }}"></script>
+
+    <style>
+        @media print {
+
+            /* Hide navbar/header */
+            nav.navbar,
+            .navbar {
+                display: none !important;
+            }
+
+            /* Hide sidebar */
+            .app-sidebar,
+            .sidebar-toggler {
+                display: none !important;
+            }
+
+            /* Hide footer */
+            footer {
+                display: none !important;
+            }
+
+            /* Adjust page-wrapper to full width */
+            .page-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+
+            /* Adjust page content */
+            .page-content {
+                padding: 10mm !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <div class="main-wrapper">
         @include('partials.app-sidebar')
@@ -40,17 +75,17 @@
     </div>
 
     <script src="{{ asset('assets/vendors/core/core.js') }}" defer></script>
-    
+
     <script src="{{ asset('assets/vendors/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/datatables.net/dataTables.js') }}" defer></script>
     <script src="{{ asset('assets/vendors/datatables.net-bs5/dataTables.bootstrap5.js') }}" defer></script>
     <script src="{{ asset('assets/vendors/flatpickr/flatpickr.min.js') }}" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js" defer></script>
-    
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 
     <script src="{{ asset('assets/js/app.js') }}" defer></script>
-    
+
     <script>
         $(document).ready(function() {
             setTimeout(function() {
@@ -66,8 +101,9 @@
         });
     </script>
 
-    
+
 
     @stack('scripts')
 </body>
+
 </html>

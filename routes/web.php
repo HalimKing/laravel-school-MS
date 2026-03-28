@@ -3,6 +3,7 @@
 use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TeacherPasswordController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AssessmentController;
@@ -31,6 +32,8 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserRoleController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -42,9 +45,17 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-    Route::get('/', function () {
-        return view('index');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/api/chart-data', [DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
+
+    // Notifications routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
+
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     Route::get('students/reports', [StudentController::class, 'report'])->name('students.reports');
 

@@ -376,12 +376,17 @@
       'permission' => 'user.read',
       'items' => [
       [
+      'label' => 'Notifications',
+      'url' => route('notifications.index'),
+      'active' => ['notifications.index']
+      ],
+      [
       'label' => 'Announcements',
       'url' => route('announcements.index'),
       'active' => ['announcements.index', 'announcements.create', 'announcements.edit']
       ],
       ],
-      'active_patterns' => ['announcements.index', 'announcements.create', 'announcements.edit']
+      'active_patterns' => ['notifications.index', 'announcements.index', 'announcements.create', 'announcements.edit']
       ],
 
       [

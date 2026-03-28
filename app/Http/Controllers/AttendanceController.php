@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\ClassModel;
 use App\Models\AcademicYear;
+use App\Models\AcademicPeriod;
 use App\Models\LevelData;
 use App\Models\Subject;
 use App\Models\AssignSubject;
@@ -20,10 +21,11 @@ class AttendanceController extends Controller
     public function create(Request $request)
     {
         $academicYears = AcademicYear::all();
+        $academicPeriods = AcademicPeriod::all();
         $classes = ClassModel::all();
         $subjects = Subject::all();
 
-        return view('admin.attendance.create', compact('academicYears', 'classes', 'subjects'));
+        return view('admin.attendance.create', compact('academicYears', 'academicPeriods', 'classes', 'subjects'));
     }
 
     /**
@@ -34,12 +36,14 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'class_id' => 'required|exists:class_models,id',
             'academic_year_id' => 'required|exists:academic_years,id',
+            'academic_period_id' => 'required|exists:academic_periods,id',
             'attendance_date' => 'required|date',
             'subject_id' => 'nullable|exists:subjects,id',
         ]);
 
         $classId = $validated['class_id'];
         $academicYearId = $validated['academic_year_id'];
+        $academicPeriodId = $validated['academic_period_id'];
         $attendanceDate = $validated['attendance_date'];
         $subjectId = $validated['subject_id'] ?? null;
 
@@ -52,6 +56,7 @@ class AttendanceController extends Controller
         // Get existing attendance records for the date
         $query = Attendance::where('class_id', $classId)
             ->where('academic_year_id', $academicYearId)
+            ->where('academic_period_id', $academicPeriodId)
             ->where('attendance_date', $attendanceDate);
 
         if ($subjectId) {
@@ -74,6 +79,7 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'class_id' => 'required|exists:class_models,id',
             'academic_year_id' => 'required|exists:academic_years,id',
+            'academic_period_id' => 'required|exists:academic_periods,id',
             'attendance_date' => 'required|date',
             'subject_id' => 'nullable|exists:subjects,id',
             'attendance' => 'required|array',
@@ -86,9 +92,10 @@ class AttendanceController extends Controller
         try {
             DB::beginTransaction();
 
-            // Delete existing attendance for this date, class, year, and subject
+            // Delete existing attendance for this date, class, year, period, and subject
             $query = Attendance::where('class_id', $validated['class_id'])
                 ->where('academic_year_id', $validated['academic_year_id'])
+                ->where('academic_period_id', $validated['academic_period_id'])
                 ->where('attendance_date', $validated['attendance_date']);
 
             if ($validated['subject_id']) {
@@ -104,6 +111,7 @@ class AttendanceController extends Controller
                     'level_data_id' => $record['level_data_id'],
                     'class_id' => $validated['class_id'],
                     'academic_year_id' => $validated['academic_year_id'],
+                    'academic_period_id' => $validated['academic_period_id'],
                     'subject_id' => $validated['subject_id'] ?? null,
                     'attendance_date' => $validated['attendance_date'],
                     'status' => $record['status'],
@@ -129,9 +137,10 @@ class AttendanceController extends Controller
      */
     public function classReport(Request $request)
     {
-        $query = Attendance::with('student', 'classModel', 'academicYear', 'subject');
+        $query = Attendance::with('student', 'classModel', 'academicYear', 'academicPeriod', 'subject');
 
         $academicYears = AcademicYear::all();
+        $academicPeriods = AcademicPeriod::all();
         $classes = ClassModel::all();
         $subjects = Subject::all();
 
@@ -141,6 +150,10 @@ class AttendanceController extends Controller
 
         if ($request->filled('academic_year_id')) {
             $query->where('academic_year_id', $request->academic_year_id);
+        }
+
+        if ($request->filled('academic_period_id')) {
+            $query->where('academic_period_id', $request->academic_period_id);
         }
 
         if ($request->filled('subject_id')) {
@@ -160,8 +173,8 @@ class AttendanceController extends Controller
         // Calculate statistics
         $stats = [
             'total_records' => Attendance::count(),
-            'present' => Attendance::present()->count(),
-            'absent' => Attendance::absent()->count(),
+            'present' => Attendance::where('status', 'present')->count(),
+            'absent' => Attendance::where('status', 'absent')->count(),
             'late' => Attendance::where('status', 'late')->count(),
             'excused' => Attendance::where('status', 'excused')->count(),
         ];
@@ -169,6 +182,7 @@ class AttendanceController extends Controller
         return view('admin.attendance.class-report', compact(
             'records',
             'academicYears',
+            'academicPeriods',
             'classes',
             'subjects',
             'stats'
@@ -180,10 +194,11 @@ class AttendanceController extends Controller
      */
     public function subjectReport(Request $request)
     {
-        $query = Attendance::with('subject', 'classModel', 'academicYear', 'student')
+        $query = Attendance::with('subject', 'classModel', 'academicYear', 'academicPeriod', 'student')
             ->whereNotNull('subject_id');
 
         $academicYears = AcademicYear::all();
+        $academicPeriods = AcademicPeriod::all();
         $classes = ClassModel::all();
         $subjects = Subject::all();
 
@@ -197,6 +212,10 @@ class AttendanceController extends Controller
 
         if ($request->filled('academic_year_id')) {
             $query->where('academic_year_id', $request->academic_year_id);
+        }
+
+        if ($request->filled('academic_period_id')) {
+            $query->where('academic_period_id', $request->academic_period_id);
         }
 
         if ($request->filled('date_from')) {
@@ -220,6 +239,7 @@ class AttendanceController extends Controller
         return view('admin.attendance.subject-report', compact(
             'records',
             'academicYears',
+            'academicPeriods',
             'classes',
             'subjects',
             'subjectStats'
@@ -233,9 +253,10 @@ class AttendanceController extends Controller
     {
         $students = Student::with('levelData.classModel', 'levelData.academicYear')->get();
 
-        $query = Attendance::with('classModel', 'academicYear', 'subject');
+        $query = Attendance::with('classModel', 'academicYear', 'academicPeriod', 'subject');
 
         $academicYears = AcademicYear::all();
+        $academicPeriods = AcademicPeriod::all();
         $selectedStudent = null;
         $selectedAcademicYear = null;
 
@@ -247,6 +268,10 @@ class AttendanceController extends Controller
         if ($request->filled('academic_year_id')) {
             $query->where('academic_year_id', $request->academic_year_id);
             $selectedAcademicYear = AcademicYear::find($request->academic_year_id);
+        }
+
+        if ($request->filled('academic_period_id')) {
+            $query->where('academic_period_id', $request->academic_period_id);
         }
 
         if ($request->filled('date_from')) {
@@ -290,6 +315,7 @@ class AttendanceController extends Controller
             'records',
             'students',
             'academicYears',
+            'academicPeriods',
             'selectedStudent',
             'selectedAcademicYear',
             'stats'
@@ -306,28 +332,29 @@ class AttendanceController extends Controller
         $subjects = Subject::all();
 
         // Determine date range filter
-        $filter = $request->get('filter', '30d'); // Default to last 30 days
-        $dateFrom = now();
+        $dateFrom = now()->subDays(30)->startOfDay();
+        $dateTo = now()->endOfDay();
 
-        switch ($filter) {
-            case 'today':
-                $dateFrom = now()->startOfDay();
-                break;
-            case '7d':
-                $dateFrom = now()->subDays(7)->startOfDay();
-                break;
-            case '30d':
-                $dateFrom = now()->subDays(30)->startOfDay();
-                break;
-            case '90d':
-                $dateFrom = now()->subDays(90)->startOfDay();
-                break;
-            default:
-                $dateFrom = now()->subDays(30)->startOfDay();
+        // Check if custom date range is provided
+        if ($request->has('date_from') && $request->filled('date_from')) {
+            $dateFrom = \Carbon\Carbon::createFromFormat('Y-m-d', $request->get('date_from'))->startOfDay();
+        }
+        if ($request->has('date_to') && $request->filled('date_to')) {
+            $dateTo = \Carbon\Carbon::createFromFormat('Y-m-d', $request->get('date_to'))->endOfDay();
         }
 
         // Base query with date filter
-        $baseQuery = Attendance::where('attendance_date', '>=', $dateFrom);
+        $baseQuery = Attendance::whereBetween('attendance_date', [$dateFrom, $dateTo]);
+
+        // Apply class filter if provided
+        if ($request->has('class_id') && $request->filled('class_id')) {
+            $baseQuery = $baseQuery->where('class_id', $request->get('class_id'));
+        }
+
+        // Apply subject filter if provided
+        if ($request->has('subject_id') && $request->filled('subject_id')) {
+            $baseQuery = $baseQuery->where('subject_id', $request->get('subject_id'));
+        }
 
         // Overall statistics
         $totalAttendanceRecords = $baseQuery->count();
@@ -437,8 +464,7 @@ class AttendanceController extends Controller
             'mostAbsentStudents',
             'academicYears',
             'classes',
-            'subjects',
-            'filter'
+            'subjects'
         ));
     }
 }

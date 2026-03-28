@@ -38,6 +38,16 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="academic_period_id" class="form-label fw-bold">Academic Period</label>
+                        <select name="academic_period_id" id="academic_period_id" class="form-select" required>
+                            <option value="">Select Academic Period</option>
+                            @foreach($academicPeriods as $period)
+                            <option value="{{ $period->id }}">{{ $period->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="class_id" class="form-label fw-bold">Class</label>
                         <select name="class_id" id="class_id" class="form-select" required>
                             <option value="">Select Class</option>
@@ -82,6 +92,7 @@
 
                     <input type="hidden" name="class_id" id="formClassId">
                     <input type="hidden" name="academic_year_id" id="formAcademicYearId">
+                    <input type="hidden" name="academic_period_id" id="formAcademicPeriodId">
                     <input type="hidden" name="subject_id" id="formSubjectId">
                     <input type="hidden" name="attendance_date" id="formAttendanceDate">
 
@@ -127,12 +138,13 @@
 
     document.getElementById('loadStudentsBtn').addEventListener('click', function() {
         const academicYearId = document.getElementById('academic_year_id').value;
+        const academicPeriodId = document.getElementById('academic_period_id').value;
         const classId = document.getElementById('class_id').value;
         const subjectId = document.getElementById('subject_id').value;
         const attendanceDate = document.getElementById('attendance_date').value;
 
-        if (!academicYearId || !classId || !attendanceDate) {
-            alert('Please select academic year, class, and date');
+        if (!academicYearId || !academicPeriodId || !classId || !attendanceDate) {
+            alert('Please select academic year, academic period, class, and date');
             return;
         }
 
@@ -143,6 +155,7 @@
         const params = new URLSearchParams({
             class_id: classId,
             academic_year_id: academicYearId,
+            academic_period_id: academicPeriodId,
             attendance_date: attendanceDate
         });
 
@@ -171,6 +184,7 @@
                 populateStudentsTable(data.students, data.existingAttendance || {});
                 document.getElementById('formClassId').value = classId;
                 document.getElementById('formAcademicYearId').value = academicYearId;
+                document.getElementById('formAcademicPeriodId').value = academicPeriodId;
                 document.getElementById('formSubjectId').value = subjectId || '';
                 document.getElementById('formAttendanceDate').value = attendanceDate;
                 document.getElementById('studentsCard').style.display = 'block';

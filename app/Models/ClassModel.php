@@ -19,7 +19,7 @@ class ClassModel extends Model
 
     public function levels()
     {
-        return $this->hasMany(LevelData::class);
+        return $this->hasMany(LevelData::class, 'class_id');
     }
 
     public function fee()
