@@ -264,51 +264,33 @@
         Profile Information
     </div>
 
-    <form method="POST" action="{{ route('profile.update') }}">
-        @csrf
-        @method('PUT')
-
         <div class="form-row">
             <!-- Full Name -->
             <div class="form-group">
                 <label for="name" class="form-label">Full Name</label>
-                <input type="text"
-                    class="form-control @error('name') is-invalid @enderror"
+                <p
+                    class="form-control"
                     id="name"
                     name="name"
-                    value="{{ old('name', Auth::user()->name) }}"
                     required>
-                @error('name')
-                <div class="error-message">{{ $message }}</div>
-                @enderror
+                    {{ Auth::user()->name }}
+                </p>
             </div>
 
             <!-- Email Address -->
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
-                <input type="email"
+                <p
                     class="form-control @error('email') is-invalid @enderror"
                     id="email"
                     name="email"
-                    value="{{ old('email', Auth::user()->email) }}"
+                    value=""
                     required>
-                @error('email')
-                <div class="error-message">{{ $message }}</div>
-                @enderror
+                    {{  Auth::user()->email }}
+                </p>
+               
             </div>
         </div>
-
-        <div style="display: flex; gap: 1rem;">
-            <button type="submit" class="btn-primary">
-                <i data-lucide="save" style="width: 16px; height: 16px; display: inline; margin-right: 0.5rem;"></i>
-                Save Changes
-            </button>
-            <button type="reset" class="btn-secondary">
-                <i data-lucide="x" style="width: 16px; height: 16px; display: inline; margin-right: 0.5rem;"></i>
-                Cancel
-            </button>
-        </div>
-    </form>
 </div>
 
 <!-- Account Information Section -->

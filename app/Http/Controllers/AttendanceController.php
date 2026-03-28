@@ -122,6 +122,8 @@ class AttendanceController extends Controller
 
             DB::commit();
 
+            \App\Helpers\SystemLogHelper::log('Record Attendance', 'Attendance', "Attendance recorded for class ID: {$validated['class_id']} on {$validated['attendance_date']}");
+
             return redirect()
                 ->route('admin.attendance.create')
                 ->with('success', 'Attendance recorded successfully!');

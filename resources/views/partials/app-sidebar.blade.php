@@ -487,7 +487,15 @@
       [
       'label' => 'Sync Data',
       'url' => route('admin.data-sync.index'),
+      'admin.system-logs.index',
       'active' => ['admin.data-sync.index'],
+      'admin.system-logs.index',
+      'permission' => 'user.read'
+      ],
+      [
+      'label' => 'System Logs',
+      'url' => route('admin.system-logs.index'),
+      'active' => ['admin.system-logs.index'],
       'permission' => 'user.read'
       ],
       ],
@@ -506,7 +514,8 @@
       'admin.management.users.assign-roles',
       'settings.school',
       'settings.system',
-      'admin.data-sync.index'
+      'admin.data-sync.index',
+      'admin.system-logs.index',
       ]
       ],
       ];

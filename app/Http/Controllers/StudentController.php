@@ -78,6 +78,7 @@ class StudentController extends Controller
             $levelData->class_id = $request->class_id;
             $levelData->academic_year_id = $request->academic_year_id;
             $levelData->save();
+            \App\Helpers\SystemLogHelper::log('Create Student', 'Student Management', "Student created: {$request->first_name} {$request->last_name} with admission number {$request->admission_number}");
             return redirect()->route('admin.students.index')->with('success', 'Student created successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -139,6 +140,7 @@ class StudentController extends Controller
             'class_id' => $request->class_id,
             'academic_year_id' => $request->academic_year_id
         ]);
+        \App\Helpers\SystemLogHelper::log('Update Student', 'Student Management', "Student updated: {$student->first_name} {$student->last_name}");
         return redirect()->route('admin.students.index')->with('success', 'Student updated successfully');
     }
 
@@ -149,6 +151,7 @@ class StudentController extends Controller
     {
         //
         $student->delete();
+        \App\Helpers\SystemLogHelper::log('Delete Student', 'Student Management', "Student deleted: {$student->first_name} {$student->last_name}");
         return redirect()->route('admin.students.index')->with('success', 'Student deleted successfully');
     }
 
@@ -162,6 +165,11 @@ class StudentController extends Controller
         $academicYearId = $request->input('academic_year_id');
         $gender = $request->input('gender');
         $status = $request->input('status');
+        $hasFilters = $request->filled('search')
+            || $request->filled('class_id')
+            || $request->filled('academic_year_id')
+            || $request->filled('gender')
+            || $request->filled('status');
 
         $query = Student::with('latestLevel.classModel');
 
@@ -201,17 +209,19 @@ class StudentController extends Controller
         $academicYears = AcademicYear::orderBy('name', 'desc')->get();
         $genders = ['Male', 'Female'];
 
-        // Calculate statistics
-        $totalStudents = Student::count();
-        $maleStudents = Student::where('gender', 'Male')->count();
-        $femaleStudents = Student::where('gender', 'Female')->count();
-        $activeStudents = Student::where('status', 'active')->count();
+        // Calculate statistics from the same filtered dataset
+        $statsQuery = clone $query;
+        $totalStudents = (clone $statsQuery)->count();
+        $maleStudents = (clone $statsQuery)->where('gender', 'Male')->count();
+        $femaleStudents = (clone $statsQuery)->where('gender', 'Female')->count();
+        $activeStudents = (clone $statsQuery)->where('status', 'active')->count();
 
         return view('admin.reports.student-report', compact(
             'students',
             'classes',
             'academicYears',
             'genders',
+            'hasFilters',
             'totalStudents',
             'maleStudents',
             'femaleStudents',
@@ -316,6 +326,8 @@ class StudentController extends Controller
             if (count($summary['errors']) > 0) {
                 $message .= ', Errors: ' . count($summary['errors']);
             }
+
+            \App\Helpers\SystemLogHelper::log('Import Students', 'Student Management', $message);
 
             $redirect = redirect()->route('admin.students.index')->with('success', $message);
 

@@ -41,9 +41,13 @@ class AuthController extends Controller
             // Authentication successful
             $request->session()->regenerate();
 
+            \App\Helpers\SystemLogHelper::log('Login', 'Authentication', 'User logged in successfully: ' . Auth::user()->email);
+
             return redirect()->intended(route('dashboard'))
                 ->with('success', 'Welcome back! You are successfully logged in.');
         }
+
+        \App\Helpers\SystemLogHelper::log('Failed Login', 'Authentication', 'Failed login attempt for email: ' . $request->email);
 
         // Authentication failed
         throw ValidationException::withMessages([
@@ -56,6 +60,9 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            \App\Helpers\SystemLogHelper::log('Logout', 'Authentication', 'User logged out: ' . Auth::user()->email);
+        }
         Auth::logout();
 
         $request->session()->invalidate();

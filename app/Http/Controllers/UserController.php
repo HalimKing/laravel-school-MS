@@ -60,6 +60,7 @@ class UserController extends Controller
             }
         }
 
+        \App\Helpers\SystemLogHelper::log('Manage User', 'User Management', "Managed user: {$user->name}");
         return redirect()->route('admin.users.show', $user->id)
             ->with('success', "User '{$user->name}' created successfully!");
     }
@@ -125,6 +126,7 @@ class UserController extends Controller
             }
         }
 
+        \App\Helpers\SystemLogHelper::log('Manage User', 'User Management', "Managed user: {$user->name}");
         return redirect()->route('admin.users.show', $user->id)
             ->with('success', "User '{$user->name}' updated successfully!");
     }
@@ -144,6 +146,8 @@ class UserController extends Controller
 
         $userName = $user->name;
         $user->delete();
+
+        \App\Helpers\SystemLogHelper::log('Delete User', 'User Management', "User deleted: {$userName}");
 
         return redirect()->route('admin.users.index')
             ->with('success', "User '{$userName}' deleted successfully!");

@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
         Route::middleware('can:user.update')->get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::middleware('can:user.update')->put('users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::middleware('can:user.delete')->delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::middleware('role:super-admin')->get('system-logs', [\App\Http\Controllers\SystemLogController::class, 'index'])->name('system-logs.index');
+        Route::middleware('role:super-admin')->get('system-logs/{log}', [\App\Http\Controllers\SystemLogController::class, 'show'])->name('system-logs.show');
         Route::middleware('can:user.update')->post('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
 
         // Student Management - require admin permissions
