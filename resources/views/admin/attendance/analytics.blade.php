@@ -672,7 +672,23 @@
                 type: 'donut',
                 height: 350
             },
-            series: [{{ $presentCount }}, {{ $absentCount }}, {{ $lateCount }}, {{ $excusedCount }}],
+            series: [{
+                {
+                    $presentCount
+                }
+            }, {
+                {
+                    $absentCount
+                }
+            }, {
+                {
+                    $lateCount
+                }
+            }, {
+                {
+                    $excusedCount
+                }
+            }],
             labels: ['Present', 'Absent', 'Late', 'Excused'],
             colors: ['#28a745', '#dc3545', '#ffc107', '#17a2b8'],
             plotOptions: {
@@ -696,8 +712,12 @@
         });
         statusChart.render();
 
-        const trendLabels = {!! json_encode(array_column($dailyTrend->toArray(), 'date')) !!};
-        const trendData = {!! json_encode(array_column($dailyTrend->toArray(), 'percentage')) !!};
+        const trendLabels = {
+            !!json_encode(array_column($dailyTrend - > toArray(), 'date')) !!
+        };
+        const trendData = {
+            !!json_encode(array_column($dailyTrend - > toArray(), 'percentage')) !!
+        };
 
         const trendChart = new ApexCharts(trendChartEl, {
             chart: {
@@ -741,8 +761,12 @@
         });
         trendChart.render();
 
-        const classLabels = {!! json_encode(array_column($classStats->toArray(), 'class')) !!};
-        const classData = {!! json_encode(array_column($classStats->toArray(), 'percentage')) !!};
+        const classLabels = {
+            !!json_encode(array_column($classStats - > toArray(), 'class')) !!
+        };
+        const classData = {
+            !!json_encode(array_column($classStats - > toArray(), 'percentage')) !!
+        };
 
         const classChart = new ApexCharts(classChartEl, {
             chart: {
@@ -783,8 +807,12 @@
         });
         classChart.render();
 
-        const subjectLabels = {!! json_encode(array_column($subjectStats->toArray(), 'subject')) !!};
-        const subjectData = {!! json_encode(array_column($subjectStats->toArray(), 'percentage')) !!};
+        const subjectLabels = {
+            !!json_encode(array_column($subjectStats - > toArray(), 'subject')) !!
+        };
+        const subjectData = {
+            !!json_encode(array_column($subjectStats - > toArray(), 'percentage')) !!
+        };
 
         const subjectChart = new ApexCharts(subjectChartEl, {
             chart: {
@@ -903,7 +931,11 @@
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance');
 
         const columnCount = rows[0] ? rows[0].length : 6;
-        worksheet['!cols'] = Array.from({ length: columnCount }, () => ({ wch: 16 }));
+        worksheet['!cols'] = Array.from({
+            length: columnCount
+        }, () => ({
+            wch: 16
+        }));
 
         XLSX.writeFile(workbook, filename);
     }
