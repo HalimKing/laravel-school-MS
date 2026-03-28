@@ -97,6 +97,8 @@ Route::middleware('auth')->group(function () {
             'update'  => 'can:academic.update',
             'destroy' => 'can:academic.update',
         ]);
+        Route::middleware('can:academic.create')->post('students/import', [StudentController::class, 'import'])->name('students.import');
+        Route::middleware('can:academic.read')->get('students/import/template', [StudentController::class, 'downloadImportTemplate'])->name('students.import.template');
         Route::middleware('can:academic.read')->resource('/classes', ClassController::class);
 
         // Teacher Management - require admin permissions
@@ -172,6 +174,7 @@ Route::middleware('auth')->group(function () {
             Route::middleware('can:attendance.read')->get('subject-report', [AttendanceController::class, 'subjectReport'])->name('subject-report');
             Route::middleware('can:attendance.read')->get('student-report', [AttendanceController::class, 'studentReport'])->name('student-report');
             Route::middleware('can:attendance.analytics')->get('analytics', [AttendanceController::class, 'analytics'])->name('analytics');
+            Route::middleware('can:attendance.analytics')->get('analytics/data', [AttendanceController::class, 'analyticsData'])->name('analytics.data');
         });
 
         // Roles and Permissions Management - admin/super-admin only

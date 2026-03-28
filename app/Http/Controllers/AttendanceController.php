@@ -327,144 +327,184 @@ class AttendanceController extends Controller
      */
     public function analytics(Request $request)
     {
-        $academicYears = AcademicYear::all();
-        $classes = ClassModel::all();
-        $subjects = Subject::all();
+        $classes = ClassModel::orderBy('name')->get();
+        $subjects = Subject::orderBy('name')->get();
 
-        // Determine date range filter
-        $dateFrom = now()->subDays(30)->startOfDay();
-        $dateTo = now()->endOfDay();
+        return view('admin.attendance.analytics', compact('classes', 'subjects'));
+    }
 
-        // Check if custom date range is provided
-        if ($request->has('date_from') && $request->filled('date_from')) {
-            $dateFrom = \Carbon\Carbon::createFromFormat('Y-m-d', $request->get('date_from'))->startOfDay();
-        }
-        if ($request->has('date_to') && $request->filled('date_to')) {
-            $dateTo = \Carbon\Carbon::createFromFormat('Y-m-d', $request->get('date_to'))->endOfDay();
-        }
+    /**
+     * Attendance analytics data endpoint (AJAX)
+     */
+    public function analyticsData(Request $request)
+    {
+        $filters = $request->validate([
+            'class_id' => 'nullable|exists:class_models,id',
+            'subject_id' => 'nullable|exists:subjects,id',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date|after_or_equal:date_from',
+        ]);
 
-        // Base query with date filter
-        $baseQuery = Attendance::whereBetween('attendance_date', [$dateFrom, $dateTo]);
+        $dateFrom = isset($filters['date_from'])
+            ? \Carbon\Carbon::parse($filters['date_from'])->startOfDay()
+            : now()->subDays(30)->startOfDay();
 
-        // Apply class filter if provided
-        if ($request->has('class_id') && $request->filled('class_id')) {
-            $baseQuery = $baseQuery->where('class_id', $request->get('class_id'));
-        }
+        $dateTo = isset($filters['date_to'])
+            ? \Carbon\Carbon::parse($filters['date_to'])->endOfDay()
+            : now()->endOfDay();
 
-        // Apply subject filter if provided
-        if ($request->has('subject_id') && $request->filled('subject_id')) {
-            $baseQuery = $baseQuery->where('subject_id', $request->get('subject_id'));
-        }
+        $baseQuery = $this->buildAnalyticsBaseQuery($filters, $dateFrom, $dateTo);
 
-        // Overall statistics
-        $totalAttendanceRecords = $baseQuery->count();
-        $presentCount = (clone $baseQuery)->where('status', 'present')->count();
-        $absentCount = (clone $baseQuery)->where('status', 'absent')->count();
-        $lateCount = (clone $baseQuery)->where('status', 'late')->count();
-        $excusedCount = (clone $baseQuery)->where('status', 'excused')->count();
+        $overall = (clone $baseQuery)
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present_count")
+            ->selectRaw("SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as absent_count")
+            ->selectRaw("SUM(CASE WHEN status = 'late' THEN 1 ELSE 0 END) as late_count")
+            ->selectRaw("SUM(CASE WHEN status = 'excused' THEN 1 ELSE 0 END) as excused_count")
+            ->first();
 
+        $totalAttendanceRecords = (int) ($overall->total ?? 0);
+        $presentCount = (int) ($overall->present_count ?? 0);
+        $absentCount = (int) ($overall->absent_count ?? 0);
+        $lateCount = (int) ($overall->late_count ?? 0);
+        $excusedCount = (int) ($overall->excused_count ?? 0);
         $overallPercentage = $totalAttendanceRecords > 0
             ? round(($presentCount / $totalAttendanceRecords) * 100, 2)
             : 0;
 
-        // Class-wise attendance statistics
-        $classStats = (clone $baseQuery)->select('class_id')
+        $classStats = (clone $baseQuery)
+            ->join('class_models', 'attendance.class_id', '=', 'class_models.id')
+            ->selectRaw('class_models.name as class')
             ->selectRaw('COUNT(*) as total')
-            ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present_count")
-            ->groupBy('class_id')
-            ->with('classModel')
+            ->selectRaw("SUM(CASE WHEN attendance.status = 'present' THEN 1 ELSE 0 END) as present_count")
+            ->groupBy('class_models.name')
+            ->orderBy('class_models.name')
             ->get()
             ->map(function ($stat) {
+                $total = (int) $stat->total;
+                $present = (int) $stat->present_count;
                 return [
-                    'class' => $stat->classModel->name ?? 'N/A',
-                    'total' => $stat->total,
-                    'present' => $stat->present_count,
-                    'percentage' => $stat->total > 0 ? round(($stat->present_count / $stat->total) * 100, 1) : 0,
+                    'class' => $stat->class,
+                    'total' => $total,
+                    'present' => $present,
+                    'absent' => $total - $present,
+                    'late' => 0,
+                    'percentage' => $total > 0 ? round(($present / $total) * 100, 1) : 0,
                 ];
-            });
+            })
+            ->values();
 
-        // Subject-wise attendance statistics
-        $subjectStats = (clone $baseQuery)->whereNotNull('subject_id')
-            ->select('subject_id')
+        $subjectStats = (clone $baseQuery)
+            ->leftJoin('subjects', 'attendance.subject_id', '=', 'subjects.id')
+            ->whereNotNull('attendance.subject_id')
+            ->selectRaw("COALESCE(subjects.name, 'N/A') as subject")
             ->selectRaw('COUNT(*) as total')
-            ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present_count")
-            ->groupBy('subject_id')
+            ->selectRaw("SUM(CASE WHEN attendance.status = 'present' THEN 1 ELSE 0 END) as present_count")
+            ->groupBy('subjects.name')
+            ->orderBy('subjects.name')
             ->get()
             ->map(function ($stat) {
-                $subject = Subject::find($stat->subject_id);
+                $total = (int) $stat->total;
+                $present = (int) $stat->present_count;
                 return [
-                    'subject' => $subject->name ?? 'N/A',
-                    'total' => $stat->total,
-                    'present' => $stat->present_count,
-                    'percentage' => $stat->total > 0 ? round(($stat->present_count / $stat->total) * 100, 1) : 0,
+                    'subject' => $stat->subject,
+                    'total' => $total,
+                    'present' => $present,
+                    'absent' => $total - $present,
+                    'late' => 0,
+                    'percentage' => $total > 0 ? round(($present / $total) * 100, 1) : 0,
                 ];
-            });
+            })
+            ->values();
 
-        // Daily attendance trend
-        $dailyTrend = (clone $baseQuery)->select('attendance_date')
+        $dailyTrend = (clone $baseQuery)
+            ->selectRaw('attendance_date')
             ->selectRaw('COUNT(*) as total')
             ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present_count")
             ->groupBy('attendance_date')
             ->orderBy('attendance_date')
             ->get()
             ->map(function ($record) {
+                $total = (int) $record->total;
+                $present = (int) $record->present_count;
                 return [
-                    'date' => $record->attendance_date->format('M d'),
-                    'total' => $record->total,
-                    'present' => $record->present_count,
-                    'percentage' => $record->total > 0 ? round(($record->present_count / $record->total) * 100, 1) : 0,
-                ];
-            });
-
-        // Status distribution
-        $statusDistribution = [
-            'present' => $presentCount,
-            'absent' => $absentCount,
-            'late' => $lateCount,
-            'excused' => $excusedCount,
-        ];
-
-        // Top 10 most absent students (filtered by date range)
-        $mostAbsentStudents = LevelData::with('student', 'classModel')
-            ->get()
-            ->map(function ($levelData) use ($baseQuery) {
-                $student = $levelData->student;
-                $totalAttendance = (clone $baseQuery)->where('student_id', $student->id)->count();
-                $absences = (clone $baseQuery)->where('student_id', $student->id)
-                    ->where('status', 'absent')
-                    ->count();
-
-                return [
-                    'name' => $student->first_name . ' ' . $student->last_name,
-                    'student_id' => $student->student_id,
-                    'class' => $levelData->classModel->name ?? 'N/A',
-                    'total_attendance' => $totalAttendance,
-                    'absences' => $absences,
-                    'absence_percentage' => $totalAttendance > 0 ? round(($absences / $totalAttendance) * 100, 1) : 0,
+                    'date' => \Carbon\Carbon::parse($record->attendance_date)->format('M d'),
+                    'total' => $total,
+                    'present' => $present,
+                    'percentage' => $total > 0 ? round(($present / $total) * 100, 1) : 0,
                 ];
             })
-            ->filter(function ($item) {
-                return $item['total_attendance'] > 0;
-            })
-            ->sortByDesc('absence_percentage')
-            ->take(10)
             ->values();
 
-        return view('admin.attendance.analytics', compact(
-            'totalAttendanceRecords',
-            'presentCount',
-            'absentCount',
-            'lateCount',
-            'excusedCount',
-            'overallPercentage',
-            'classStats',
-            'subjectStats',
-            'dailyTrend',
-            'statusDistribution',
-            'mostAbsentStudents',
-            'academicYears',
-            'classes',
-            'subjects'
-        ));
+        $mostAbsentStudents = (clone $baseQuery)
+            ->join('students', 'attendance.student_id', '=', 'students.id')
+            ->leftJoin('class_models', 'attendance.class_id', '=', 'class_models.id')
+            ->selectRaw("CONCAT(students.first_name, ' ', students.last_name) as name")
+            ->selectRaw('students.student_id as student_ref')
+            ->selectRaw("COALESCE(class_models.name, 'N/A') as class")
+            ->selectRaw('COUNT(*) as total_attendance')
+            ->selectRaw("SUM(CASE WHEN attendance.status = 'absent' THEN 1 ELSE 0 END) as absences")
+            ->groupBy('students.id', 'students.first_name', 'students.last_name', 'students.student_id', 'class_models.name')
+            ->havingRaw('COUNT(*) > 0')
+            ->orderByRaw("(SUM(CASE WHEN attendance.status = 'absent' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) DESC")
+            ->limit(10)
+            ->get()
+            ->map(function ($student) {
+                $total = (int) $student->total_attendance;
+                $absences = (int) $student->absences;
+                return [
+                    'name' => $student->name,
+                    'student_id' => $student->student_ref,
+                    'class' => $student->class,
+                    'total_attendance' => $total,
+                    'absences' => $absences,
+                    'absence_percentage' => $total > 0 ? round(($absences / $total) * 100, 1) : 0,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'filters' => [
+                'class_id' => $filters['class_id'] ?? null,
+                'subject_id' => $filters['subject_id'] ?? null,
+                'date_from' => $dateFrom->format('Y-m-d'),
+                'date_to' => $dateTo->format('Y-m-d'),
+            ],
+            'summary' => [
+                'totalAttendanceRecords' => $totalAttendanceRecords,
+                'presentCount' => $presentCount,
+                'absentCount' => $absentCount,
+                'lateCount' => $lateCount,
+                'excusedCount' => $excusedCount,
+                'overallPercentage' => $overallPercentage,
+                'classCount' => $classStats->count(),
+                'subjectCount' => $subjectStats->count(),
+            ],
+            'statusDistribution' => [
+                'present' => $presentCount,
+                'absent' => $absentCount,
+                'late' => $lateCount,
+                'excused' => $excusedCount,
+            ],
+            'dailyTrend' => $dailyTrend,
+            'classStats' => $classStats,
+            'subjectStats' => $subjectStats,
+            'mostAbsentStudents' => $mostAbsentStudents,
+        ]);
+    }
+
+    private function buildAnalyticsBaseQuery(array $filters, \Carbon\Carbon $dateFrom, \Carbon\Carbon $dateTo)
+    {
+        $query = Attendance::query()->whereBetween('attendance_date', [$dateFrom, $dateTo]);
+
+        if (!empty($filters['class_id'])) {
+            $query->where('class_id', $filters['class_id']);
+        }
+
+        if (!empty($filters['subject_id'])) {
+            $query->where('subject_id', $filters['subject_id']);
+        }
+
+        return $query;
     }
 }

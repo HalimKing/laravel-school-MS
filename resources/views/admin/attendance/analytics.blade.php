@@ -342,13 +342,19 @@
     </div>
 </div>
 
+<div id="analyticsLoading" class="alert alert-info d-none" role="alert">
+    Loading analytics data...
+</div>
+
+<div id="analyticsError" class="alert alert-danger d-none" role="alert"></div>
+
 <!-- Statistics Cards -->
 <div class="row g-3 mb-4" id="statsContainer">
     <!-- Total Records Card -->
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Total Records</span>
-            <div class="stat-value text-primary" id="statTotal">{{ $totalAttendanceRecords }}</div>
+            <div class="stat-value text-primary" id="statTotal">0</div>
             <span class="stat-meta">Attendance entries</span>
         </div>
     </div>
@@ -357,7 +363,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Attendance Rate</span>
-            <div class="stat-value text-success" id="statRate">{{ $overallPercentage }}%</div>
+            <div class="stat-value text-success" id="statRate">0%</div>
             <span class="stat-meta">Overall presence</span>
         </div>
     </div>
@@ -366,7 +372,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Present</span>
-            <div class="stat-value" style="color: #28a745;" id="statPresent">{{ $presentCount }}</div>
+            <div class="stat-value" style="color: #28a745;" id="statPresent">0</div>
             <span class="stat-meta">Students marked present</span>
         </div>
     </div>
@@ -375,7 +381,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Absent</span>
-            <div class="stat-value" style="color: #dc3545;" id="statAbsent">{{ $absentCount }}</div>
+            <div class="stat-value" style="color: #dc3545;" id="statAbsent">0</div>
             <span class="stat-meta">Students absent</span>
         </div>
     </div>
@@ -387,7 +393,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Late</span>
-            <div class="stat-value" style="color: #ffc107;" id="statLate">{{ $lateCount }}</div>
+            <div class="stat-value" style="color: #ffc107;" id="statLate">0</div>
             <span class="stat-meta">Marked late</span>
         </div>
     </div>
@@ -396,7 +402,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Excused</span>
-            <div class="stat-value" style="color: #17a2b8;" id="statExcused">{{ $excusedCount }}</div>
+            <div class="stat-value" style="color: #17a2b8;" id="statExcused">0</div>
             <span class="stat-meta">with excuse</span>
         </div>
     </div>
@@ -405,7 +411,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Classes</span>
-            <div class="stat-value" style="color: #6f42c1;" id="statClasses">{{ count($classStats) }}</div>
+            <div class="stat-value" style="color: #6f42c1;" id="statClasses">0</div>
             <span class="stat-meta">With records</span>
         </div>
     </div>
@@ -414,7 +420,7 @@
     <div class="col-md-3 col-sm-6">
         <div class="stat-card">
             <span class="stat-label">Subjects</span>
-            <div class="stat-value" style="color: #fd7e14;" id="statSubjects">{{ count($subjectStats) }}</div>
+            <div class="stat-value" style="color: #fd7e14;" id="statSubjects">0</div>
             <span class="stat-meta">With records</span>
         </div>
     </div>
@@ -485,24 +491,9 @@
                 </tr>
             </thead>
             <tbody id="classStatsTable">
-                @forelse($classStats as $stat)
-                <tr>
-                    <td><strong>{{ $stat['class'] }}</strong></td>
-                    <td class="text-end">{{ $stat['total'] }}</td>
-                    <td class="text-end text-success">{{ $stat['present'] }}</td>
-                    <td class="text-end text-danger">{{ $stat['total'] - $stat['present'] }}</td>
-                    <td class="text-end">-</td>
-                    <td class="text-end">
-                        <span class="status-badge status-{{ $stat['percentage'] >= 85 ? 'excellent' : ($stat['percentage'] >= 75 ? 'good' : ($stat['percentage'] >= 70 ? 'fair' : 'poor')) }}">
-                            {{ $stat['percentage'] }}%
-                        </span>
-                    </td>
-                </tr>
-                @empty
                 <tr>
                     <td colspan="6" class="text-center py-4 text-muted">No class data available</td>
                 </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
@@ -534,24 +525,9 @@
                 </tr>
             </thead>
             <tbody id="subjectStatsTable">
-                @forelse($subjectStats as $stat)
-                <tr>
-                    <td><strong>{{ $stat['subject'] }}</strong></td>
-                    <td class="text-end">{{ $stat['total'] }}</td>
-                    <td class="text-end text-success">{{ $stat['present'] }}</td>
-                    <td class="text-end text-danger">{{ $stat['total'] - $stat['present'] }}</td>
-                    <td class="text-end">-</td>
-                    <td class="text-end">
-                        <span class="status-badge status-{{ $stat['percentage'] >= 85 ? 'excellent' : ($stat['percentage'] >= 75 ? 'good' : ($stat['percentage'] >= 70 ? 'fair' : 'poor')) }}">
-                            {{ $stat['percentage'] }}%
-                        </span>
-                    </td>
-                </tr>
-                @empty
                 <tr>
                     <td colspan="6" class="text-center py-4 text-muted">No subject data available</td>
                 </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
@@ -583,24 +559,9 @@
                 </tr>
             </thead>
             <tbody id="absentStudentsTable">
-                @forelse($mostAbsentStudents as $student)
-                <tr>
-                    <td><strong>{{ $student['name'] }}</strong></td>
-                    <td>{{ $student['student_id'] }}</td>
-                    <td>{{ $student['class'] }}</td>
-                    <td class="text-end">{{ $student['total_attendance'] }}</td>
-                    <td class="text-end text-danger">{{ $student['absences'] }}</td>
-                    <td class="text-end">
-                        <span class="status-badge status-{{ $student['absence_percentage'] > 30 ? 'poor' : ($student['absence_percentage'] > 15 ? 'fair' : 'good') }}">
-                            {{ $student['absence_percentage'] }}%
-                        </span>
-                    </td>
-                </tr>
-                @empty
                 <tr>
                     <td colspan="6" class="text-center py-4 text-muted">No student data available</td>
                 </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
@@ -609,86 +570,235 @@
 @push('scripts')
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        renderCharts();
+    const endpoints = {
+        data: "{{ route('admin.attendance.analytics.data') }}"
+    };
 
+    const chartInstances = {
+        status: null,
+        trend: null,
+        classWise: null,
+        subjectWise: null,
+    };
+
+    let currentAnalyticsData = {
+        classStats: [],
+        subjectStats: [],
+        mostAbsentStudents: []
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeFilters();
+        fetchAndRenderAnalytics();
+
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+
+    function initializeFilters() {
         const filterBtns = document.querySelectorAll('.filter-btn');
         const applyBtn = document.getElementById('applyFilters');
+        const filterClass = document.getElementById('filterClass');
+        const filterSubject = document.getElementById('filterSubject');
+        const filterDateFrom = document.getElementById('filterDateFrom');
+        const filterDateTo = document.getElementById('filterDateTo');
 
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                filterBtns.forEach(b => b.classList.remove('active'));
+        filterBtns.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                filterBtns.forEach(function(b) {
+                    b.classList.remove('active');
+                });
                 this.classList.add('active');
 
                 const range = this.getAttribute('data-range');
-                const dateToInput = document.getElementById('filterDateTo');
-                const dateFromInput = document.getElementById('filterDateFrom');
                 const today = new Date();
-
                 let daysBack = 30;
-                if (range === '7d') daysBack = 7;
-                if (range === '90d') daysBack = 90;
+                if (range === '7d') {
+                    daysBack = 7;
+                } else if (range === '90d') {
+                    daysBack = 90;
+                }
 
                 const fromDate = new Date(today);
                 fromDate.setDate(fromDate.getDate() - daysBack);
-                dateFromInput.value = fromDate.toISOString().split('T')[0];
-                dateToInput.value = today.toISOString().split('T')[0];
+
+                filterDateFrom.value = fromDate.toISOString().split('T')[0];
+                filterDateTo.value = today.toISOString().split('T')[0];
+                fetchAndRenderAnalytics();
             });
         });
 
-        applyBtn.addEventListener('click', function() {
-            const filters = {
-                class_id: document.getElementById('filterClass').value,
-                subject_id: document.getElementById('filterSubject').value,
-                date_from: document.getElementById('filterDateFrom').value,
-                date_to: document.getElementById('filterDateTo').value
+        if (applyBtn) {
+            applyBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetchAndRenderAnalytics();
+            });
+        }
+
+        [filterClass, filterSubject, filterDateFrom, filterDateTo].forEach(function(el) {
+            if (!el) {
+                return;
+            }
+            el.addEventListener('change', function() {
+                fetchAndRenderAnalytics();
+            });
+        });
+    }
+
+    function getFilters() {
+        return {
+            class_id: document.getElementById('filterClass') ? document.getElementById('filterClass').value : '',
+            subject_id: document.getElementById('filterSubject') ? document.getElementById('filterSubject').value : '',
+            date_from: document.getElementById('filterDateFrom') ? document.getElementById('filterDateFrom').value : '',
+            date_to: document.getElementById('filterDateTo') ? document.getElementById('filterDateTo').value : ''
+        };
+    }
+
+    async function fetchAndRenderAnalytics() {
+        const loadingEl = document.getElementById('analyticsLoading');
+        const errorEl = document.getElementById('analyticsError');
+
+        loadingEl.classList.remove('d-none');
+        errorEl.classList.add('d-none');
+        errorEl.textContent = '';
+
+        try {
+            const params = new URLSearchParams();
+            const filters = getFilters();
+            Object.entries(filters).forEach(function(entry) {
+                if (entry[1]) {
+                    params.append(entry[0], entry[1]);
+                }
+            });
+
+            const response = await fetch(endpoints.data + '?' + params.toString(), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch analytics data.');
+            }
+
+            const payload = await response.json();
+            currentAnalyticsData = {
+                classStats: payload.classStats || [],
+                subjectStats: payload.subjectStats || [],
+                mostAbsentStudents: payload.mostAbsentStudents || []
             };
 
-            const params = new URLSearchParams();
-            Object.entries(filters).forEach(([key, value]) => {
-                if (value) params.append(key, value);
-            });
+            updateSummaryCards(payload.summary || {});
+            updateTables(currentAnalyticsData);
+            renderCharts(payload);
+        } catch (error) {
+            errorEl.textContent = error.message || 'Unexpected error while loading analytics data.';
+            errorEl.classList.remove('d-none');
+        } finally {
+            loadingEl.classList.add('d-none');
+        }
+    }
 
-            window.location.href = '{{ route("admin.attendance.analytics") }}?' + params.toString();
-        });
-    });
+    function updateSummaryCards(summary) {
+        document.getElementById('statTotal').textContent = summary.totalAttendanceRecords ?? 0;
+        document.getElementById('statRate').textContent = (summary.overallPercentage ?? 0) + '%';
+        document.getElementById('statPresent').textContent = summary.presentCount ?? 0;
+        document.getElementById('statAbsent').textContent = summary.absentCount ?? 0;
+        document.getElementById('statLate').textContent = summary.lateCount ?? 0;
+        document.getElementById('statExcused').textContent = summary.excusedCount ?? 0;
+        document.getElementById('statClasses').textContent = summary.classCount ?? 0;
+        document.getElementById('statSubjects').textContent = summary.subjectCount ?? 0;
+    }
 
-    function renderCharts() {
+    function getStatusClass(percentage) {
+        if (percentage >= 85) return 'excellent';
+        if (percentage >= 75) return 'good';
+        if (percentage >= 70) return 'fair';
+        return 'poor';
+    }
+
+    function updateTables(data) {
+        const classBody = document.getElementById('classStatsTable');
+        const subjectBody = document.getElementById('subjectStatsTable');
+        const absentBody = document.getElementById('absentStudentsTable');
+
+        classBody.innerHTML = data.classStats.length ? data.classStats.map(function(stat) {
+            return '<tr>' +
+                '<td><strong>' + escapeHtml(stat.class) + '</strong></td>' +
+                '<td class="text-end">' + stat.total + '</td>' +
+                '<td class="text-end text-success">' + stat.present + '</td>' +
+                '<td class="text-end text-danger">' + stat.absent + '</td>' +
+                '<td class="text-end">' + stat.late + '</td>' +
+                '<td class="text-end"><span class="status-badge status-' + getStatusClass(stat.percentage) + '">' + stat.percentage + '%</span></td>' +
+                '</tr>';
+        }).join('') : '<tr><td colspan="6" class="text-center py-4 text-muted">No class data available</td></tr>';
+
+        subjectBody.innerHTML = data.subjectStats.length ? data.subjectStats.map(function(stat) {
+            return '<tr>' +
+                '<td><strong>' + escapeHtml(stat.subject) + '</strong></td>' +
+                '<td class="text-end">' + stat.total + '</td>' +
+                '<td class="text-end text-success">' + stat.present + '</td>' +
+                '<td class="text-end text-danger">' + stat.absent + '</td>' +
+                '<td class="text-end">' + stat.late + '</td>' +
+                '<td class="text-end"><span class="status-badge status-' + getStatusClass(stat.percentage) + '">' + stat.percentage + '%</span></td>' +
+                '</tr>';
+        }).join('') : '<tr><td colspan="6" class="text-center py-4 text-muted">No subject data available</td></tr>';
+
+        absentBody.innerHTML = data.mostAbsentStudents.length ? data.mostAbsentStudents.map(function(student) {
+            const absenceClass = student.absence_percentage > 30 ? 'poor' : (student.absence_percentage > 15 ? 'fair' : 'good');
+            return '<tr>' +
+                '<td><strong>' + escapeHtml(student.name) + '</strong></td>' +
+                '<td>' + escapeHtml(student.student_id) + '</td>' +
+                '<td>' + escapeHtml(student.class) + '</td>' +
+                '<td class="text-end">' + student.total_attendance + '</td>' +
+                '<td class="text-end text-danger">' + student.absences + '</td>' +
+                '<td class="text-end"><span class="status-badge status-' + absenceClass + '">' + student.absence_percentage + '%</span></td>' +
+                '</tr>';
+        }).join('') : '<tr><td colspan="6" class="text-center py-4 text-muted">No student data available</td></tr>';
+    }
+
+    function renderCharts(payload) {
         if (typeof ApexCharts === 'undefined') {
             return;
         }
 
-        const statusChartEl = document.querySelector('#statusChart');
-        const trendChartEl = document.querySelector('#trendChart');
-        const classChartEl = document.querySelector('#classChart');
-        const subjectChartEl = document.querySelector('#subjectChart');
+        const statusSeries = [
+            payload.statusDistribution?.present || 0,
+            payload.statusDistribution?.absent || 0,
+            payload.statusDistribution?.late || 0,
+            payload.statusDistribution?.excused || 0,
+        ];
 
-        if (!statusChartEl || !trendChartEl || !classChartEl || !subjectChartEl) {
-            return;
-        }
+        const trendLabels = (payload.dailyTrend || []).map(function(item) {
+            return item.date;
+        });
+        const trendData = (payload.dailyTrend || []).map(function(item) {
+            return item.percentage;
+        });
+        const classLabels = (payload.classStats || []).map(function(item) {
+            return item.class;
+        });
+        const classData = (payload.classStats || []).map(function(item) {
+            return item.percentage;
+        });
+        const subjectLabels = (payload.subjectStats || []).map(function(item) {
+            return item.subject;
+        });
+        const subjectData = (payload.subjectStats || []).map(function(item) {
+            return item.percentage;
+        });
 
-        const statusChart = new ApexCharts(statusChartEl, {
+        destroyCharts();
+
+        chartInstances.status = new ApexCharts(document.querySelector('#statusChart'), {
             chart: {
                 type: 'donut',
                 height: 350
             },
-            series: [{
-                {
-                    $presentCount
-                }
-            }, {
-                {
-                    $absentCount
-                }
-            }, {
-                {
-                    $lateCount
-                }
-            }, {
-                {
-                    $excusedCount
-                }
-            }],
+            series: statusSeries,
             labels: ['Present', 'Absent', 'Late', 'Excused'],
             colors: ['#28a745', '#dc3545', '#ffc107', '#17a2b8'],
             plotOptions: {
@@ -710,16 +820,9 @@
                 }
             }]
         });
-        statusChart.render();
+        chartInstances.status.render();
 
-        const trendLabels = {
-            !!json_encode(array_column($dailyTrend - > toArray(), 'date')) !!
-        };
-        const trendData = {
-            !!json_encode(array_column($dailyTrend - > toArray(), 'percentage')) !!
-        };
-
-        const trendChart = new ApexCharts(trendChartEl, {
+        chartInstances.trend = new ApexCharts(document.querySelector('#trendChart'), {
             chart: {
                 type: 'area',
                 height: 350,
@@ -759,16 +862,9 @@
                 }
             }]
         });
-        trendChart.render();
+        chartInstances.trend.render();
 
-        const classLabels = {
-            !!json_encode(array_column($classStats - > toArray(), 'class')) !!
-        };
-        const classData = {
-            !!json_encode(array_column($classStats - > toArray(), 'percentage')) !!
-        };
-
-        const classChart = new ApexCharts(classChartEl, {
+        chartInstances.classWise = new ApexCharts(document.querySelector('#classChart'), {
             chart: {
                 type: 'bar',
                 height: 400,
@@ -793,7 +889,7 @@
             dataLabels: {
                 enabled: true,
                 formatter: function(val) {
-                    return val.toFixed(1) + '%';
+                    return Number(val).toFixed(1) + '%';
                 }
             },
             responsive: [{
@@ -805,16 +901,9 @@
                 }
             }]
         });
-        classChart.render();
+        chartInstances.classWise.render();
 
-        const subjectLabels = {
-            !!json_encode(array_column($subjectStats - > toArray(), 'subject')) !!
-        };
-        const subjectData = {
-            !!json_encode(array_column($subjectStats - > toArray(), 'percentage')) !!
-        };
-
-        const subjectChart = new ApexCharts(subjectChartEl, {
+        chartInstances.subjectWise = new ApexCharts(document.querySelector('#subjectChart'), {
             chart: {
                 type: 'bar',
                 height: 400,
@@ -839,7 +928,7 @@
             dataLabels: {
                 enabled: true,
                 formatter: function(val) {
-                    return val.toFixed(1) + '%';
+                    return Number(val).toFixed(1) + '%';
                 }
             },
             responsive: [{
@@ -851,14 +940,32 @@
                 }
             }]
         });
-        subjectChart.render();
-
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
+        chartInstances.subjectWise.render();
     }
 
-    function getTableExportData(tableId) {
+    function destroyCharts() {
+        Object.keys(chartInstances).forEach(function(key) {
+            if (chartInstances[key]) {
+                chartInstances[key].destroy();
+                chartInstances[key] = null;
+            }
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, function(char) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            };
+            return map[char] || char;
+        });
+    }
+
+    function getTableContext(tableId) {
         const tbody = document.getElementById(tableId);
         if (!tbody) {
             return null;
@@ -869,75 +976,88 @@
             return null;
         }
 
-        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-        const bodyRows = Array.from(tbody.querySelectorAll('tr')).map(row =>
-            Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim())
-        ).filter(row => row.length > 0);
+        const headers = Array.from(table.querySelectorAll('thead th')).map(function(th) {
+            return th.textContent.trim();
+        });
+
+        const rows = Array.from(tbody.querySelectorAll('tr')).map(function(tr) {
+            return Array.from(tr.querySelectorAll('td')).map(function(td) {
+                return td.textContent.trim();
+            });
+        }).filter(function(row) {
+            return row.length > 0;
+        });
 
         return {
-            headers,
-            bodyRows
+            headers: headers,
+            rows: rows
         };
     }
 
     function downloadTableAsCSV(tableId, filename) {
-        const exportData = getTableExportData(tableId);
-        if (!exportData) {
+        const context = getTableContext(tableId);
+        if (!context) {
             alert('Table not found!');
             return;
         }
 
-        const rows = [];
-        if (exportData.headers.length > 0) {
-            rows.push(exportData.headers);
+        const csvLines = [];
+        if (context.headers.length) {
+            csvLines.push(context.headers.map(function(cell) {
+                return '"' + String(cell).replace(/"/g, '""') + '"';
+            }).join(','));
         }
-        exportData.bodyRows.forEach(row => rows.push(row));
 
-        const csv = rows.map(row =>
-            row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')
-        ).join('\n');
+        context.rows.forEach(function(row) {
+            csvLines.push(row.map(function(cell) {
+                return '"' + String(cell).replace(/"/g, '""') + '"';
+            }).join(','));
+        });
 
-        const blob = new Blob([csv], {
+        const csvContent = '\ufeff' + csvLines.join('\n');
+        const blob = new Blob([csvContent], {
             type: 'text/csv;charset=utf-8;'
         });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = filename;
         link.click();
+        URL.revokeObjectURL(link.href);
     }
 
     function downloadTableAsExcel(tableId, filename) {
-        const exportData = getTableExportData(tableId);
-        if (!exportData) {
+        const context = getTableContext(tableId);
+        if (!context) {
             alert('Table not found!');
             return;
         }
 
         if (typeof XLSX === 'undefined') {
-            // Fallback to CSV when the XLSX library is blocked/unavailable.
-            const csvName = filename.replace(/\.xlsx$/i, '.csv');
-            downloadTableAsCSV(tableId, csvName);
+            console.warn('XLSX library is not available. Falling back to CSV download.');
+            const fallback = filename.replace(/\.xlsx$/i, '.csv');
+            downloadTableAsCSV(tableId, fallback);
             return;
         }
 
-        const rows = [];
-        if (exportData.headers.length > 0) {
-            rows.push(exportData.headers);
+        const data = [];
+        if (context.headers.length) {
+            data.push(context.headers);
         }
-        exportData.bodyRows.forEach(row => rows.push(row));
+        context.rows.forEach(function(row) {
+            data.push(row);
+        });
 
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance');
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Attendance');
 
-        const columnCount = rows[0] ? rows[0].length : 6;
-        worksheet['!cols'] = Array.from({
-            length: columnCount
-        }, () => ({
-            wch: 16
-        }));
+        ws['!cols'] = context.headers.map(function() {
+            return {
+                wch: 16
+            };
+        });
 
-        XLSX.writeFile(workbook, filename);
+        XLSX.writeFile(wb, filename);
     }
 </script>
 @endpush
