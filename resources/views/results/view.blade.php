@@ -8,10 +8,27 @@
         <h3 class="mb-0">{{ $pageTitle }}</h3>
         <div>
             @if (!empty($studentResults) && auth()->user()->can('academic.read'))
-            <button class="btn btn-outline-primary btn-sm me-2" onclick="window.print()">
+            <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="printResultsView()">
                 <i data-lucide="printer" class="me-1"></i>Print
             </button>
             @endif
+        </div>
+    </div>
+
+    <div class="print-school-header">
+        @if(setting('logo'))
+        <div class="school-logo-wrap">
+            <img src="{{ setting('logo') }}" alt="School Logo" class="school-logo">
+        </div>
+        @endif
+        <div class="school-name">{{ setting('school_name', config('app.name', 'School Management System')) }}</div>
+        @if(setting('school_motto'))
+        <div class="school-motto">{{ setting('school_motto') }}</div>
+        @endif
+        <div class="school-contact">
+            @if(setting('address'))<span>{{ setting('address') }}</span>@endif
+            @if(setting('phone'))<span>Phone: {{ setting('phone') }}</span>@endif
+            @if(setting('email'))<span>Email: {{ setting('email') }}</span>@endif
         </div>
     </div>
 
@@ -125,7 +142,7 @@
                     </h5>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <button class="btn btn-sm btn-outline-primary no-print" onclick="printStudentCard({{ $studentData['student_id'] }})" title="Print this student's results">
+                    <button type="button" class="btn btn-sm btn-outline-primary no-print" onclick="printStudentCard({{ $studentData['student_id'] }})" title="Print this student's results">
                         <i data-lucide="printer" class="me-1" style="width: 16px; height: 16px;"></i>Print
                     </button>
                     <div class="badge bg-info">
@@ -221,29 +238,95 @@
 </div>
 
 <!-- Lucide Icons -->
-<script src="{{ asset('assets/js/feather.min.js') }}"></script>
-
 <!-- Print CSS -->
 <style>
+    .print-school-header {
+        display: none;
+    }
+
     @media print {
+
+        @page {
+            margin: 0;
+        }
 
         /* Hide all elements by default */
         body * {
             display: none;
         }
 
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         /* Show only the page content */
         .page-content {
             display: block !important;
+            margin: 10mm 15mm 15mm 15mm !important;
+            padding: 0 !important;
+        }
+
+        .print-school-header {
+            display: block !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
             margin: 0;
-            padding: 0;
+            padding: 4mm 10mm 3mm 10mm;
+            border-bottom: 2px solid #000;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            background: #fff;
+            z-index: 10;
+        }
+
+        .print-school-header .school-logo-wrap {
+            display: block !important;
+            margin: 0 0 0.35rem 0;
+        }
+
+        .print-school-header .school-logo {
+            display: inline-block !important;
+            max-height: 65px;
+            max-width: 140px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .print-school-header .school-name {
+            display: block !important;
+            margin: 0 0 0.2rem 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .print-school-header .school-motto {
+            display: block !important;
+            margin: 0 0 0.2rem 0;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .print-school-header .school-contact {
+            display: block !important;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .print-school-header .school-contact span {
+            display: block !important;
+            margin: 0.05rem 0;
         }
 
         /* Show only the selected result card */
         .result-card {
             display: block !important;
             page-break-inside: avoid;
-            margin: 0;
+            margin: 40mm 0 0 0;
             padding: 0;
             border: none;
             box-shadow: none;
@@ -338,39 +421,66 @@
 </style>
 
 <script>
-    feather.replace();
+    const resultsPrintState = {
+        hiddenElements: []
+    };
+
+    function restoreResultsView() {
+        resultsPrintState.hiddenElements.forEach((item) => {
+            item.element.style.display = item.display;
+        });
+        resultsPrintState.hiddenElements = [];
+    }
+
+    window.addEventListener('afterprint', restoreResultsView);
+
+    if (window.feather) {
+        feather.replace();
+    }
+
+    function printResultsView() {
+        restoreResultsView();
+        window.print();
+    }
 
     /**
      * Print only the selected student's result card
      */
     function printStudentCard(studentId) {
+        restoreResultsView();
+
         // Hide all result cards except the one we want to print
         const allCards = document.querySelectorAll('.result-card');
         allCards.forEach(card => {
             if (parseInt(card.getAttribute('data-student-id')) !== studentId) {
+                resultsPrintState.hiddenElements.push({
+                    element: card,
+                    display: card.style.display
+                });
                 card.style.display = 'none';
             }
         });
 
         // Also hide other elements
-        document.querySelector('.page-content > h3')?.style.display = 'none';
-        document.querySelector('.page-content > .row:nth-child(2)')?.style.display = 'none';
-        document.querySelector('.page-content > .card:nth-child(3)')?.style.display = 'none';
-        document.querySelectorAll('.alert').forEach(el => el.style.display = 'none');
+        const selectorsToHide = [
+            '.page-content > h3',
+            '.page-content > .row:nth-child(2)',
+            '.page-content > .card:nth-child(3)',
+            '.alert'
+        ];
+
+        selectorsToHide.forEach((selector) => {
+            document.querySelectorAll(selector).forEach((element) => {
+                resultsPrintState.hiddenElements.push({
+                    element: element,
+                    display: element.style.display
+                });
+                element.style.display = 'none';
+            });
+        });
 
         // Print
         window.print();
-
-        // Show all cards again after print
-        setTimeout(() => {
-            allCards.forEach(card => {
-                card.style.display = '';
-            });
-            document.querySelector('.page-content > h3')?.style.display = '';
-            document.querySelector('.page-content > .row:nth-child(2)')?.style.display = '';
-            document.querySelector('.page-content > .card:nth-child(3)')?.style.display = '';
-            document.querySelectorAll('.alert').forEach(el => el.style.display = '');
-        }, 500);
     }
 </script>
 

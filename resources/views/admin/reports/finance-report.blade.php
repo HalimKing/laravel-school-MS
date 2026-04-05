@@ -26,7 +26,7 @@
         <div class="card">
             <div class="card-body">
                 <h6 class="card-title text-uppercase fw-bold small mb-2">Total Collected</h6>
-                <h3 class="mb-0 text-success">₦{{ number_format($totalCollected, 2) }}</h3>
+                <h3 class="mb-0 text-success">GH₵{{ number_format($totalCollected, 2) }}</h3>
             </div>
         </div>
     </div>
@@ -42,7 +42,7 @@
         <div class="card">
             <div class="card-body">
                 <h6 class="card-title text-uppercase fw-bold small mb-2">Filtered Total</h6>
-                <h3 class="mb-0 text-info">₦{{ number_format($filteredTotal, 2) }}</h3>
+                <h3 class="mb-0 text-info">GH₵{{ number_format($filteredTotal, 2) }}</h3>
             </div>
         </div>
     </div>
@@ -52,9 +52,9 @@
                 <h6 class="card-title text-uppercase fw-bold small mb-2">Avg Per Transaction</h6>
                 <h3 class="mb-0 text-warning">
                     @if($totalPayments > 0)
-                    ₦{{ number_format($totalCollected / $totalPayments, 2) }}
+                    GH₵{{ number_format($totalCollected / $totalPayments, 2) }}
                     @else
-                    ₦0.00
+                    GH₵0.00
                     @endif
                 </h3>
             </div>
@@ -83,7 +83,7 @@
                             @foreach($revenueByCategory as $item)
                             <tr>
                                 <td>{{ $item->name }}</td>
-                                <td class="text-end fw-bold">₦{{ number_format($item->total, 2) }}</td>
+                                <td class="text-end fw-bold">GH₵{{ number_format($item->total, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -117,7 +117,7 @@
                             <tr>
                                 <td>{{ ucfirst($item->payment_method) }}</td>
                                 <td class="text-end">{{ $item->count }}</td>
-                                <td class="text-end fw-bold">₦{{ number_format($item->total, 2) }}</td>
+                                <td class="text-end fw-bold">GH₵{{ number_format($item->total, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -260,7 +260,7 @@
                     <td>{{ $payment->levelData->classModel->name ?? 'N/A' }}</td>
                     <td>{{ $payment->fee->feeCategory->name ?? 'N/A' }}</td>
                     <td><span class="badge bg-info">{{ ucfirst($payment->payment_method) }}</span></td>
-                    <td class="fw-bold">₦{{ number_format($payment->amount_paid, 2) }}</td>
+                    <td class="fw-bold">GH₵{{ number_format($payment->amount_paid, 2) }}</td>
                     <td>
                         <small>{{ $payment->reference_no ?? '-' }}</small>
                         @if($payment->remarks)

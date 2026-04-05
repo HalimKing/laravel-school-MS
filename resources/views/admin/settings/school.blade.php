@@ -16,8 +16,9 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <form method="POST" action="#">
+                <form method="POST" action="{{ route('settings.school.update') }}" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT')
 
                     <div class="mb-3">
                         <label for="school_name" class="form-label fw-bold">School Name</label>

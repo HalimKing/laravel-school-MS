@@ -487,16 +487,14 @@
       [
       'label' => 'Sync Data',
       'url' => route('admin.data-sync.index'),
-      'admin.system-logs.index',
       'active' => ['admin.data-sync.index'],
-      'admin.system-logs.index',
-      'permission' => 'user.read'
+      'permission' => 'data-sync.manage'
       ],
       [
       'label' => 'System Logs',
       'url' => route('admin.system-logs.index'),
       'active' => ['admin.system-logs.index'],
-      'permission' => 'user.read'
+      'permission' => 'system-log.read'
       ],
       ],
       'active_patterns' => [

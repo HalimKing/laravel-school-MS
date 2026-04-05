@@ -72,6 +72,18 @@ class PermissionSeeder extends Seeder
                 'setting.update' => 'Update setting',
                 'setting.delete' => 'Delete setting',
             ],
+            'dashboard' => [
+                'dashboard.metrics.read' => 'View dashboard metrics',
+                'dashboard.attendance_trends.read' => 'View weekly attendance trends',
+                'dashboard.enrollment.read' => 'View student enrollment by class',
+                'dashboard.performance.read' => 'View academic performance analytics',
+                'dashboard.announcements.read' => 'View dashboard announcements',
+                'dashboard.events.read' => 'View dashboard events',
+            ],
+            'system' => [
+                'system-log.read' => 'Read system logs',
+                'data-sync.manage' => 'Manage data synchronization',
+            ],
         ];
 
         // Create all permissions
@@ -99,7 +111,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'admin', 'guard_name' => 'web'],
             ['description' => 'Administrator']
         );
-        $adminPermissions = Permission::whereIn('category', ['user', 'role', 'permission', 'setting'])->pluck('id');
+        $adminPermissions = Permission::whereIn('category', ['user', 'role', 'permission', 'setting', 'dashboard', 'system'])->pluck('id');
         $adminRole->syncPermissions($adminPermissions);
 
         // Create teacher role
@@ -113,6 +125,11 @@ class PermissionSeeder extends Seeder
             'attendance.report',
             'academic.read',
             'report.read',
+            'dashboard.attendance_trends.read',
+            'dashboard.enrollment.read',
+            'dashboard.performance.read',
+            'dashboard.announcements.read',
+            'dashboard.events.read',
         ])->pluck('id');
         $teacherRole->syncPermissions($teacherPermissions);
 
@@ -125,6 +142,8 @@ class PermissionSeeder extends Seeder
             'attendance.read',
             'academic.read',
             'report.read',
+            'dashboard.announcements.read',
+            'dashboard.events.read',
         ])->pluck('id');
         $studentRole->syncPermissions($studentPermissions);
 
@@ -137,6 +156,8 @@ class PermissionSeeder extends Seeder
             'attendance.read',
             'academic.read',
             'report.read',
+            'dashboard.announcements.read',
+            'dashboard.events.read',
         ])->pluck('id');
         $parentRole->syncPermissions($parentPermissions);
 
@@ -145,7 +166,12 @@ class PermissionSeeder extends Seeder
             ['name' => 'accountant', 'guard_name' => 'web'],
             ['description' => 'Accountant']
         );
-        $accountantPermissions = Permission::whereIn('category', ['fee', 'report'])->pluck('id');
+        $accountantPermissions = Permission::whereIn('category', ['fee', 'report'])->pluck('id')
+            ->merge(Permission::whereIn('name', [
+                'dashboard.metrics.read',
+                'dashboard.announcements.read',
+                'dashboard.events.read',
+            ])->pluck('id'));
         $accountantRole->syncPermissions($accountantPermissions);
 
         // Clear cache again

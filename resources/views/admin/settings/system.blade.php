@@ -16,8 +16,9 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <form method="POST" action="#">
+                <form method="POST" action="{{ route('settings.system.update') }}">
                     @csrf
+                    @method('PUT')
 
                     <h6 class="fw-bold mb-3">General Settings</h6>
 
@@ -42,7 +43,7 @@
                     <div class="mb-3">
                         <label for="currency" class="form-label fw-bold">Currency Symbol</label>
                         <input type="text" class="form-control" id="currency" name="currency"
-                            value="{{ setting('currency', '₦') }}" placeholder="Enter currency symbol" maxlength="3">
+                            value="{{ setting('currency', 'GH₵') }}" placeholder="Enter currency symbol" maxlength="3">
                     </div>
 
                     <div class="mb-3">

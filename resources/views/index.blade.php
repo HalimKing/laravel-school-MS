@@ -73,6 +73,33 @@
         margin-bottom: 2rem;
     }
 
+    .dashboard-grid {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .analytics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    }
+
+    .content-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .section-empty-state {
+        border: 1px dashed #d8dbe0;
+        border-radius: 12px;
+        background: #f8fafc;
+        padding: 1.5rem;
+        color: #6c757d;
+        text-align: center;
+    }
+
     /* Skeleton Loader Styles */
     .skeleton-loader {
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -311,444 +338,389 @@
     <p>Welcome to the School Management System - Real-time Overview</p>
 </div>
 
-<!-- Key Statistics Cards -->
-<div class="stats-section">
-    <div class="row g-3">
-        <!-- Total Students Card -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="card-title text-muted mb-0">Total Students</h6>
-                        <div class="icon icon-md bg-primary-light text-primary">
-                            <i data-lucide="users" class="icon-lg"></i>
-                        </div>
-                    </div>
-                    <div class="stat-number text-primary">{{ $totalStudents ?? 1250 }}</div>
-                    <p class="text-success text-sm mb-0">
-                        <i data-lucide="trending-up" class="icon-xs"></i>
-                        <span>12% increase</span>
-                    </p>
+@if($canViewMetrics)
+<div class="stats-section dashboard-grid metrics-grid">
+    <div class="card stat-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-title text-muted mb-0">Total Students</h6>
+                <div class="icon icon-md bg-primary-light text-primary">
+                    <i data-lucide="users" class="icon-lg"></i>
                 </div>
             </div>
+            <div class="stat-number text-primary">{{ $totalStudents ?? 0 }}</div>
+            <p class="text-success text-sm mb-0">
+                <i data-lucide="trending-up" class="icon-xs"></i>
+                <span>Live system count</span>
+            </p>
         </div>
+    </div>
 
-        <!-- Total Teachers Card -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="card-title text-muted mb-0">Total Teachers</h6>
-                        <div class="icon icon-md bg-success-light text-success">
-                            <i data-lucide="award" class="icon-lg"></i>
-                        </div>
-                    </div>
-                    <div class="stat-number text-success">{{ $totalTeachers ?? 85 }}</div>
-                    <p class="text-success text-sm mb-0">
-                        <i data-lucide="trending-up" class="icon-xs"></i>
-                        <span>5% increase</span>
-                    </p>
+    <div class="card stat-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-title text-muted mb-0">Total Teachers</h6>
+                <div class="icon icon-md bg-success-light text-success">
+                    <i data-lucide="award" class="icon-lg"></i>
                 </div>
             </div>
+            <div class="stat-number text-success">{{ $totalTeachers ?? 0 }}</div>
+            <p class="text-success text-sm mb-0">
+                <i data-lucide="trending-up" class="icon-xs"></i>
+                <span>Live system count</span>
+            </p>
         </div>
+    </div>
 
-        <!-- Active Classes Card -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="card-title text-muted mb-0">Active Classes</h6>
-                        <div class="icon icon-md bg-warning-light text-warning">
-                            <i data-lucide="book-open" class="icon-lg"></i>
-                        </div>
-                    </div>
-                    <div class="stat-number text-warning">{{ $activeClasses ?? 42 }}</div>
-                    <p class="text-warning text-sm mb-0">
-                        <i data-lucide="alert-circle" class="icon-xs"></i>
-                        <span>All running</span>
-                    </p>
+    <div class="card stat-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-title text-muted mb-0">Active Classes</h6>
+                <div class="icon icon-md bg-warning-light text-warning">
+                    <i data-lucide="book-open" class="icon-lg"></i>
                 </div>
             </div>
+            <div class="stat-number text-warning">{{ $activeClasses ?? 0 }}</div>
+            <p class="text-warning text-sm mb-0">
+                <i data-lucide="alert-circle" class="icon-xs"></i>
+                <span>All running</span>
+            </p>
         </div>
+    </div>
 
-        <!-- Attendance Today Card -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="card-title text-muted mb-0">Attendance Today</h6>
-                        <div class="icon icon-md bg-info-light text-info">
-                            <i data-lucide="check" class="icon-lg"></i>
-                        </div>
-                    </div>
-                    <div class="stat-number text-info">{{ $attendancePercentage ?? '94' }}%</div>
-                    <p class="text-success text-sm mb-0">
-                        <i data-lucide="check-circle" class="icon-xs"></i>
-                        <span>{{ $attendanceCount ?? 1175 }} present</span>
-                    </p>
+    <div class="card stat-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-title text-muted mb-0">Attendance Today</h6>
+                <div class="icon icon-md bg-info-light text-info">
+                    <i data-lucide="check" class="icon-lg"></i>
                 </div>
             </div>
+            <div class="stat-number text-info">{{ $attendancePercentage ?? 0 }}%</div>
+            <p class="text-success text-sm mb-0">
+                <i data-lucide="check-circle" class="icon-xs"></i>
+                <span>{{ $attendanceCount ?? 0 }} present</span>
+            </p>
         </div>
     </div>
 </div>
+@endif
 
-<!-- Charts Section -->
-<div class="row g-3 mb-4">
-    <!-- Attendance Trend Chart (Full Width) -->
-    <div class="col-12">
-        <div class="card chart-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">📈 Attendance Trend (Weekly)</h6>
-                <small class="text-muted">Last 7 days performance</small>
+@if($canViewAttendanceTrend || $canViewEnrollment || $canViewPerformance)
+<div class="dashboard-grid analytics-grid mb-4">
+    @if($canViewAttendanceTrend)
+    <div class="card chart-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">📈 Attendance Trend (Weekly)</h6>
+            <small class="text-muted">Last 7 days performance</small>
+        </div>
+        <div class="card-body">
+            <div id="attendanceTrendSkeleton" class="chart-body-loading">
+                <div class="skeleton-loader skeleton-chart"></div>
             </div>
-            <div class="card-body">
-                <!-- Skeleton Loader -->
-                <div id="attendanceTrendSkeleton" class="chart-body-loading">
-                    <div class="skeleton-loader skeleton-chart"></div>
-                </div>
-                <!-- Actual Chart -->
-                <div id="attendanceTrendChart" style="display: none;"></div>
-            </div>
+            <div id="attendanceTrendChart" style="display: none;"></div>
         </div>
     </div>
+    @endif
+
+    @if($canViewEnrollment)
+    <div class="card chart-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">👥 Student Enrollment by Class</h6>
+        </div>
+        <div class="card-body">
+            <div id="enrollmentSkeleton" class="chart-body-loading">
+                <div class="skeleton-loader skeleton-chart"></div>
+            </div>
+            <div id="enrollmentChart" style="display: none;"></div>
+        </div>
+    </div>
+    @endif
+
+    @if($canViewPerformance)
+    <div class="card chart-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">📊 Academic Performance</h6>
+        </div>
+        <div class="card-body">
+            <div id="performanceSkeleton" class="chart-body-loading">
+                <div class="skeleton-loader skeleton-chart"></div>
+            </div>
+            <div id="performanceChart" style="display: none;"></div>
+        </div>
+    </div>
+    @endif
 </div>
+@endif
 
-<!-- Charts Row -->
-<div class="row g-3 mb-4">
-    <!-- Student Enrollment by Class Chart -->
-    <div class="col-lg-6">
-        <div class="card chart-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">👥 Student Enrollment by Class</h6>
-            </div>
-            <div class="card-body">
-                <!-- Skeleton Loader -->
-                <div id="enrollmentSkeleton" class="chart-body-loading">
-                    <div class="skeleton-loader skeleton-chart"></div>
-                </div>
-                <!-- Actual Chart -->
-                <div id="enrollmentChart" style="display: none;"></div>
-            </div>
+@if($canViewAnnouncements || $canViewEvents)
+<div class="dashboard-grid content-grid">
+    @if($canViewAnnouncements)
+    <div class="card announcement-event-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">📢 Recent Announcements</h6>
+            <a href="#" class="text-primary text-sm">View All →</a>
         </div>
-    </div>
-
-    <!-- Academic Performance Chart -->
-    <div class="col-lg-6">
-        <div class="card chart-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">📊 Academic Performance</h6>
-            </div>
-            <div class="card-body">
-                <!-- Skeleton Loader -->
-                <div id="performanceSkeleton" class="chart-body-loading">
-                    <div class="skeleton-loader skeleton-chart"></div>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                @forelse($announcements ?? [] as $announcement)
+                <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-start border-start border-{{ array_keys(['primary' => 'primary', 'success' => 'success', 'info' => 'info', 'warning' => 'warning'])[$loop->index % 4] }} border-3">
+                    <div style="flex: 1;">
+                        <h6 class="mb-1 fw-600">{{ $announcement['title'] ?? 'Announcement' }}</h6>
+                        <p class="text-muted text-sm mb-0">{{ $announcement['description'] ?? '' }}</p>
+                    </div>
+                    <span class="badge bg-{{ $announcement['type'] ?? 'info' }} ms-2">{{ ucfirst($announcement['type'] ?? 'info') }}</span>
                 </div>
-                <!-- Actual Chart -->
-                <div id="performanceChart" style="display: none;"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Recent Announcements and Events -->
-<div class="row g-3">
-    <!-- Recent Announcements -->
-    <div class="col-lg-6">
-        <div class="card announcement-event-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">📢 Recent Announcements</h6>
-                <a href="#" class="text-primary text-sm">View All →</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    @forelse($announcements ?? [] as $announcement)
-                    <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-start border-start border-{{ array_keys(['primary' => 'primary', 'success' => 'success', 'info' => 'info', 'warning' => 'warning'])[$loop->index % 4] }} border-3">
-                        <div style="flex: 1;">
-                            <h6 class="mb-1 fw-600">{{ $announcement['title'] ?? 'Announcement' }}</h6>
-                            <p class="text-muted text-sm mb-0">{{ $announcement['description'] ?? '' }}</p>
-                        </div>
-                        <span class="badge bg-{{ $announcement['type'] ?? 'info' }} ms-2">{{ ucfirst($announcement['type'] ?? 'info') }}</span>
-                    </div>
-                    @empty
-                    <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-start border-start border-success border-3">
-                        <div style="flex: 1;">
-                            <h6 class="mb-1 fw-600">School Holiday Notice</h6>
-                            <p class="text-muted text-sm mb-0">School will be closed on December 25-26</p>
-                        </div>
-                        <span class="badge bg-success ms-2">New</span>
-                    </div>
-                    <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-start border-start border-info border-3">
-                        <div style="flex: 1;">
-                            <h6 class="mb-1 fw-600">Final Exam Schedule Released</h6>
-                            <p class="text-muted text-sm mb-0">Check the exam timetable for your class</p>
-                        </div>
-                        <span class="badge bg-info ms-2">Info</span>
-                    </div>
-                    <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-start border-start border-warning border-3">
-                        <div style="flex: 1;">
-                            <h6 class="mb-1 fw-600">Parent-Teacher Meeting</h6>
-                            <p class="text-muted text-sm mb-0">Scheduled for December 15, 2025</p>
-                        </div>
-                        <span class="badge bg-warning ms-2">Important</span>
-                    </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upcoming Events -->
-    <div class="col-lg-6">
-        <div class="card announcement-event-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">📅 Upcoming Events</h6>
-                <a href="#" class="text-primary text-sm">View All →</a>
-            </div>
-            <div class="card-body p-0">
-                @forelse($events ?? [] as $event)
-                <ul class="event-accordion">
-                    <li class="event-item" data-event-id="{{ $event['id'] ?? '' }}">
-                        <!-- Event Header (Always Visible) -->
-                        <div class="event-header">
-                            <div class="event-header-left">
-                                <div class="event-color-indicator" style="background-color: var(--bs-{{ $event['color'] ?? 'primary' }})"></div>
-                                <div class="event-header-content">
-                                    <h6 class="event-title">{{ $event['title'] ?? 'Event' }}</h6>
-                                    <p class="event-meta">
-                                        <span class="event-meta-item">
-                                            <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
-                                            {{ $event['date'] ?? '' }}
-                                        </span>
-                                        <span class="event-meta-item">
-                                            <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
-                                            {{ $event['location'] ?? 'TBD' }}
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-                            <i class="event-toggle-icon" data-lucide="chevron-down" style="width: 20px; height: 20px;"></i>
-                        </div>
-
-                        <!-- Event Content (Collapsible) -->
-                        <div class="event-content">
-                            @if($event['description'])
-                            <p class="event-description">{{ $event['description'] }}</p>
-                            @endif
-
-                            <div class="event-details">
-                                <!-- Date & Time -->
-                                <div class="event-detail-item">
-                                    <div class="event-detail-icon">
-                                        <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
-                                    </div>
-                                    <div class="event-detail-text">
-                                        <span class="event-detail-label">Time</span>
-                                        <span class="event-detail-value">
-                                            {{ $event['start_time'] ?? 'Not set' }}
-                                            @if($event['end_time'] !== 'Not set')
-                                            - {{ $event['end_time'] }}
-                                            @endif
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Category -->
-                                <div class="event-detail-item">
-                                    <div class="event-detail-icon">
-                                        <i data-lucide="tag" style="width: 16px; height: 16px;"></i>
-                                    </div>
-                                    <div class="event-detail-text">
-                                        <span class="event-detail-label">Category</span>
-                                        <span class="event-detail-value">{{ $event['category'] ?? 'General' }}</span>
-                                    </div>
-                                </div>
-
-                                <!-- Location -->
-                                <div class="event-detail-item">
-                                    <div class="event-detail-icon">
-                                        <i data-lucide="map-pin" style="width: 16px; height: 16px;"></i>
-                                    </div>
-                                    <div class="event-detail-text">
-                                        <span class="event-detail-label">Location</span>
-                                        <span class="event-detail-value">{{ $event['location'] ?? 'TBD' }}</span>
-                                    </div>
-                                </div>
-
-                                <!-- Status -->
-                                <div class="event-detail-item">
-                                    <div class="event-detail-icon">
-                                        <i data-lucide="info" style="width: 16px; height: 16px;"></i>
-                                    </div>
-                                    <div class="event-detail-text">
-                                        <span class="event-detail-label">Status</span>
-                                        <span class="event-status-badge event-status-{{ $event['status'] ?? 'upcoming' }}">
-                                            {{ ucfirst($event['status'] ?? 'upcoming') }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            @if($event['notes'])
-                            <div style="padding: 0.75rem; background-color: #f8f9fa; border-radius: 4px; border-left: 3px solid #0d6efd;">
-                                <p style="margin: 0; color: #495057; font-size: 0.85rem;">
-                                    <strong>Notes:</strong> {{ $event['notes'] }}
-                                </p>
-                            </div>
-                            @endif
-                        </div>
-                    </li>
-                </ul>
                 @empty
-                <div style="padding: 2rem; text-align: center; color: #999;">
-                    <p style="margin: 0; font-size: 2rem;">📭</p>
-                    <p style="margin: 0.5rem 0 0 0;">No upcoming events scheduled</p>
-                </div>
+                <div class="section-empty-state">No announcements available for your role.</div>
                 @endforelse
             </div>
         </div>
     </div>
+    @endif
+
+    @if($canViewEvents)
+    <div class="card announcement-event-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">📅 Upcoming Events</h6>
+            <a href="#" class="text-primary text-sm">View All →</a>
+        </div>
+        <div class="card-body p-0">
+            @forelse($events ?? [] as $event)
+            <ul class="event-accordion">
+                <li class="event-item" data-event-id="{{ $event['id'] ?? '' }}">
+                    <div class="event-header">
+                        <div class="event-header-left">
+                            <div class="event-color-indicator" style="background-color: var(--bs-{{ $event['color'] ?? 'primary' }})"></div>
+                            <div class="event-header-content">
+                                <h6 class="event-title">{{ $event['title'] ?? 'Event' }}</h6>
+                                <p class="event-meta">
+                                    <span class="event-meta-item">
+                                        <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+                                        {{ $event['date'] ?? '' }}
+                                    </span>
+                                    <span class="event-meta-item">
+                                        <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                                        {{ $event['location'] ?? 'TBD' }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <i class="event-toggle-icon" data-lucide="chevron-down" style="width: 20px; height: 20px;"></i>
+                    </div>
+
+                    <div class="event-content">
+                        @if($event['description'])
+                        <p class="event-description">{{ $event['description'] }}</p>
+                        @endif
+
+                        <div class="event-details">
+                            <div class="event-detail-item">
+                                <div class="event-detail-icon">
+                                    <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="event-detail-text">
+                                    <span class="event-detail-label">Time</span>
+                                    <span class="event-detail-value">
+                                        {{ $event['start_time'] ?? 'Not set' }}
+                                        @if($event['end_time'] !== 'Not set')
+                                        - {{ $event['end_time'] }}
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-item">
+                                <div class="event-detail-icon">
+                                    <i data-lucide="tag" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="event-detail-text">
+                                    <span class="event-detail-label">Category</span>
+                                    <span class="event-detail-value">{{ $event['category'] ?? 'General' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-item">
+                                <div class="event-detail-icon">
+                                    <i data-lucide="map-pin" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="event-detail-text">
+                                    <span class="event-detail-label">Location</span>
+                                    <span class="event-detail-value">{{ $event['location'] ?? 'TBD' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-item">
+                                <div class="event-detail-icon">
+                                    <i data-lucide="info" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="event-detail-text">
+                                    <span class="event-detail-label">Status</span>
+                                    <span class="event-status-badge event-status-{{ $event['status'] ?? 'upcoming' }}">
+                                        {{ ucfirst($event['status'] ?? 'upcoming') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($event['notes'])
+                        <div style="padding: 0.75rem; background-color: #f8f9fa; border-radius: 4px; border-left: 3px solid #0d6efd;">
+                            <p style="margin: 0; color: #495057; font-size: 0.85rem;">
+                                <strong>Notes:</strong> {{ $event['notes'] }}
+                            </p>
+                        </div>
+                        @endif
+                    </div>
+                </li>
+            </ul>
+            @empty
+            <div class="section-empty-state">No upcoming events scheduled.</div>
+            @endforelse
+        </div>
+    </div>
+    @endif
 </div>
+@endif
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Fetch chart data via AJAX
-        fetch('{{ route("dashboard.chart-data") }}')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (typeof ApexCharts !== 'undefined') {
-                    // Extract data from response
-                    const enrollmentData = data.enrollmentData;
-                    const enrollmentLabels = data.enrollmentLabels;
-                    const performanceData = data.performanceData;
-                    const performanceLabels = data.performanceLabels;
-                    const attendanceTrendData = data.attendanceTrendData;
-                    const attendanceTrendLabels = data.attendanceTrendLabels;
+        const dashboardPermissions = {
+            canViewAttendanceTrend: @json((bool) $canViewAttendanceTrend),
+            canViewEnrollment: @json((bool) $canViewEnrollment),
+            canViewPerformance: @json((bool) $canViewPerformance),
+        };
 
-                    // Hide skeleton and show chart container FIRST
-                    document.getElementById('enrollmentSkeleton').style.display = 'none';
-                    document.getElementById('enrollmentChart').style.display = 'block';
+        const hasCharts = dashboardPermissions.canViewAttendanceTrend || dashboardPermissions.canViewEnrollment || dashboardPermissions.canViewPerformance;
 
-                    // 1. Student Enrollment by Class - Bar Chart
-                    const enrollmentOptions = {
-                        chart: {
-                            type: 'bar',
-                            height: 350,
-                            toolbar: {
-                                show: true
-                            }
-                        },
-                        series: [{
-                            name: 'Students',
-                            data: enrollmentData
-                        }],
-                        xaxis: {
-                            categories: enrollmentLabels
-                        },
-                        colors: ['#0d6efd'],
-                        grid: {
-                            borderColor: '#e7e7e7',
-                            strokeDashArray: 5
-                        },
-                        plotOptions: {
-                            bar: {
-                                columnWidth: '60%',
-                                borderRadius: 5
-                            }
+        if (hasCharts) {
+            fetch('{{ route("dashboard.chart-data") }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (typeof ApexCharts === 'undefined') {
+                        console.warn('ApexCharts library not loaded');
+                        return;
+                    }
+
+                    const renderBarChart = (containerId, skeletonId, labels, seriesData, seriesName, color) => {
+                        const container = document.getElementById(containerId);
+                        const skeleton = document.getElementById(skeletonId);
+
+                        if (!container || !skeleton) {
+                            return;
                         }
+
+                        skeleton.style.display = 'none';
+                        container.style.display = 'block';
+
+                        const options = {
+                            chart: {
+                                type: 'bar',
+                                height: 350,
+                                toolbar: {
+                                    show: true
+                                }
+                            },
+                            series: [{
+                                name: seriesName,
+                                data: seriesData
+                            }],
+                            xaxis: {
+                                categories: labels
+                            },
+                            colors: [color],
+                            grid: {
+                                borderColor: '#e7e7e7',
+                                strokeDashArray: 5
+                            },
+                            plotOptions: {
+                                bar: {
+                                    columnWidth: '60%',
+                                    borderRadius: 5
+                                }
+                            }
+                        };
+
+                        new ApexCharts(container, options).render();
                     };
-                    new ApexCharts(document.querySelector("#enrollmentChart"), enrollmentOptions).render();
 
-                    // Hide skeleton and show chart container FIRST
-                    document.getElementById('performanceSkeleton').style.display = 'none';
-                    document.getElementById('performanceChart').style.display = 'block';
+                    const renderAreaChart = (containerId, skeletonId, labels, seriesData, seriesName, color) => {
+                        const container = document.getElementById(containerId);
+                        const skeleton = document.getElementById(skeletonId);
 
-                    // 2. Academic Performance - Bar Chart
-                    const performanceOptions = {
-                        chart: {
-                            type: 'bar',
-                            height: 350,
-                            toolbar: {
-                                show: true
-                            }
-                        },
-                        series: [{
-                            name: 'Average Score',
-                            data: performanceData
-                        }],
-                        xaxis: {
-                            categories: performanceLabels
-                        },
-                        colors: ['#198754'],
-                        grid: {
-                            borderColor: '#e7e7e7',
-                            strokeDashArray: 5
-                        },
-                        plotOptions: {
-                            bar: {
-                                columnWidth: '60%',
-                                borderRadius: 5
-                            }
+                        if (!container || !skeleton) {
+                            return;
                         }
+
+                        skeleton.style.display = 'none';
+                        container.style.display = 'block';
+
+                        const options = {
+                            chart: {
+                                type: 'area',
+                                height: 350,
+                                stacked: false,
+                                toolbar: {
+                                    show: true
+                                }
+                            },
+                            series: [{
+                                name: seriesName,
+                                data: seriesData
+                            }],
+                            xaxis: {
+                                categories: labels
+                            },
+                            colors: [color],
+                            fill: {
+                                type: 'gradient',
+                                gradient: {
+                                    opacityFrom: 0.7,
+                                    opacityTo: 0.1
+                                }
+                            },
+                            stroke: {
+                                curve: 'smooth',
+                                width: 2
+                            },
+                            yaxis: {
+                                min: 0,
+                                max: 100
+                            }
+                        };
+
+                        new ApexCharts(container, options).render();
                     };
-                    new ApexCharts(document.querySelector("#performanceChart"), performanceOptions).render();
 
-                    // Hide skeleton and show chart container FIRST
-                    document.getElementById('attendanceTrendSkeleton').style.display = 'none';
-                    document.getElementById('attendanceTrendChart').style.display = 'block';
+                    if (dashboardPermissions.canViewEnrollment && data.enrollment) {
+                        renderBarChart('enrollmentChart', 'enrollmentSkeleton', data.enrollment.labels, data.enrollment.data, 'Students', '#0d6efd');
+                    }
 
-                    // 3. Attendance Trend - Area Chart
-                    const attendanceTrendOptions = {
-                        chart: {
-                            type: 'area',
-                            height: 350,
-                            stacked: false,
-                            toolbar: {
-                                show: true
-                            }
-                        },
-                        series: [{
-                            name: 'Attendance %',
-                            data: attendanceTrendData
-                        }],
-                        xaxis: {
-                            categories: attendanceTrendLabels
-                        },
-                        colors: ['#198754'],
-                        fill: {
-                            type: 'gradient',
-                            gradient: {
-                                opacityFrom: 0.7,
-                                opacityTo: 0.1
-                            }
-                        },
-                        stroke: {
-                            curve: 'smooth',
-                            width: 2
-                        },
-                        yaxis: {
-                            min: 0,
-                            max: 100
+                    if (dashboardPermissions.canViewPerformance && data.performance) {
+                        renderBarChart('performanceChart', 'performanceSkeleton', data.performance.labels, data.performance.data, 'Average Score', '#198754');
+                    }
+
+                    if (dashboardPermissions.canViewAttendanceTrend && data.attendanceTrend) {
+                        renderAreaChart('attendanceTrendChart', 'attendanceTrendSkeleton', data.attendanceTrend.labels, data.attendanceTrend.data, 'Attendance %', '#198754');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching chart data:', error);
+
+                    ['enrollmentSkeleton', 'performanceSkeleton', 'attendanceTrendSkeleton'].forEach(function(id) {
+                        const node = document.getElementById(id);
+                        if (node) {
+                            node.style.display = 'none';
                         }
-                    };
-                    new ApexCharts(document.querySelector("#attendanceTrendChart"), attendanceTrendOptions).render();
-                } else {
-                    console.warn('ApexCharts library not loaded');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching chart data:', error);
-                // Hide all skeletons on error
-                document.getElementById('enrollmentSkeleton').style.display = 'none';
-                document.getElementById('performanceSkeleton').style.display = 'none';
-                document.getElementById('attendanceTrendSkeleton').style.display = 'none';
-            });
+                    });
+                });
+        }
 
         // Event Accordion Functionality
         initializeEventAccordion();

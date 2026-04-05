@@ -64,8 +64,13 @@ Route::middleware('auth')->group(function () {
 
     // Settings with permission check
     Route::middleware('can:setting.read')->group(function () {
-        Route::get('sttings/school', [SettingController::class, 'school'])->name('settings.school');
-        Route::get('sttings/system', [SettingController::class, 'system'])->name('settings.system');
+        Route::get('settings/school', [SettingController::class, 'school'])->name('settings.school');
+        Route::get('settings/system', [SettingController::class, 'system'])->name('settings.system');
+    });
+
+    Route::middleware('can:setting.update')->group(function () {
+        Route::put('settings/school', [SettingController::class, 'updateSchool'])->name('settings.school.update');
+        Route::put('settings/system', [SettingController::class, 'updateSystem'])->name('settings.system.update');
     });
 
     // Reports routes with permission check
@@ -85,8 +90,8 @@ Route::middleware('auth')->group(function () {
         Route::middleware('can:user.update')->get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::middleware('can:user.update')->put('users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::middleware('can:user.delete')->delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-        Route::middleware('role:super-admin')->get('system-logs', [\App\Http\Controllers\SystemLogController::class, 'index'])->name('system-logs.index');
-        Route::middleware('role:super-admin')->get('system-logs/{log}', [\App\Http\Controllers\SystemLogController::class, 'show'])->name('system-logs.show');
+        Route::middleware('can:system-log.read')->get('system-logs', [\App\Http\Controllers\SystemLogController::class, 'index'])->name('system-logs.index');
+        Route::middleware('can:system-log.read')->get('system-logs/{log}', [\App\Http\Controllers\SystemLogController::class, 'show'])->name('system-logs.show');
         Route::middleware('can:user.update')->post('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
 
         // Student Management - require admin permissions
@@ -267,7 +272,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // Data Synchronization - admin only
-        Route::prefix('data-sync')->name('data-sync.')->middleware('can:user.read')->group(function () {
+        Route::prefix('data-sync')->name('data-sync.')->middleware('can:data-sync.manage')->group(function () {
             Route::get('/', [DataSyncController::class, 'index'])->name('index');
             Route::post('teachers', [DataSyncController::class, 'syncTeachers'])->name('sync-teachers');
             Route::post('guardians', [DataSyncController::class, 'syncGuardians'])->name('sync-guardians');
