@@ -31,5 +31,12 @@ class DatabaseSeeder extends Seeder
         if (!$user->hasRole('super-admin')) {
             $user->assignRole('super-admin');
         }
+
+        // Run academic year and period seeders
+        $this->call(AcademicYearSeeder::class);
+        $this->call(AcademicPeriodSeeder::class);
+
+        // Run class seeder
+        $this->call(ClassSeeder::class);
     }
 }

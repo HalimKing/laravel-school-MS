@@ -13,12 +13,18 @@ return new class extends Migration
     {
         Schema::create('attendance', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->foreignId('level_data_id')->constrained('level_data')->cascadeOnDelete();
-            $table->foreignId('class_id')->constrained('class_models')->cascadeOnDelete();
-            $table->foreignId('academic_year_id')->constrained('academic_years')->cascadeOnDelete();
-            $table->foreignId('subject_id')->nullable()->constrained('subjects')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->nullable()->constrained('teachers')->cascadeOnDelete();
+            $table->unsignedBigInteger('student_id');
+            $table->foreign('student_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('level_data_id');
+            $table->foreign('level_data_id')->references('id')->on('level_data')->cascadeOnDelete();
+            $table->unsignedBigInteger('class_id');
+            $table->foreign('class_id')->references('id')->on('class_models')->cascadeOnDelete();
+            $table->unsignedBigInteger('academic_year_id');
+            $table->foreign('academic_year_id')->references('id')->on('academic_years')->cascadeOnDelete();
+            $table->unsignedBigInteger('subject_id');
+            $table->foreign('subject_id')->references('id')->on('subjects')->cascadeOnDelete();
+            $table->unsignedBigInteger('teacher_id')->nullable();
+            $table->foreign('teacher_id')->references('id')->on('teachers')->cascadeOnDelete();
             $table->date('attendance_date');
             $table->enum('status', ['present', 'absent', 'late', 'excused'])->default('present');
             $table->text('remarks')->nullable();
@@ -29,7 +35,10 @@ return new class extends Migration
             $table->index('class_id');
             $table->index('academic_year_id');
             $table->index('attendance_date');
-            $table->unique(['student_id', 'level_data_id', 'attendance_date', 'subject_id']);
+            $table->unique(
+                ['student_id', 'level_data_id', 'attendance_date', 'subject_id'],
+                'attendance_unique'
+            );
         });
     }
 

@@ -127,6 +127,8 @@ Route::middleware('auth')->group(function () {
             'update'  => 'can:academic.update',
             'destroy' => 'can:academic.update',
         ]);
+        Route::middleware('can:academic.create')->post('teachers/import', [TeacherController::class, 'import'])->name('teachers.import');
+        Route::middleware('can:academic.read')->get('teachers/import/template', [TeacherController::class, 'downloadImportTemplate'])->name('teachers.import.template');
         Route::resource('class', ClassController::class)->middleware([
             'index'   => 'can:academic.read',
             'show'    => 'can:academic.read',
